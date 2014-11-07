@@ -123,12 +123,14 @@ def irc_format(text, autoescape=None):
 
     return result
 
+
 @cachetools.lru_cache(maxsize=16384)
 def _lenient_prefix(haystack, needle):
     try:
         return haystack.index(needle) == 0
     except ValueError:
         return False
+
 
 @util.delay_template_filter('line_style')
 @cachetools.lru_cache(maxsize=16384)
@@ -165,7 +167,7 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
         id_ = 'L{}'.format(line_no)
 
     return '<span class="{class_}">' \
-        '<a href="{href}" id="{id_}">{timestamp}</a> ' \
+        '<a href="{href}" id="{id_}" class="js-line-no-highlight">{timestamp}</a> ' \
         '{rest}</span>' \
         .format(
         class_=' '.join(classes),
