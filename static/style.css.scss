@@ -1,0 +1,181 @@
+/* Feels bad etc. */
+$icon-font-path: "../../static/vendor/bootstrap-sass-official/assets/fonts/bootstrap/";
+
+@import 'static/vendor/bootstrap-sass-official/assets/stylesheets/bootstrap';
+
+$part: #66361F;
+$join: green;
+
+.navbar-header .breadcrumb {
+    background-color: inherit;
+    padding: 0;
+    margin-bottom: 0; /* 15px by .navbar-text */
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.jumbotron {
+    p {
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        margin-top: 0;
+    }
+
+    input[type="text"] {
+        background-color: #f5f5f5;
+    }
+}
+
+.networks-container {
+    margin-top: 50px;
+}
+
+.network {
+    font-size: $font-size-large;
+    margin: 5px;
+}
+
+/* Channel and date view */
+
+.title-search-form {
+    /* I don't know. */
+    margin-left: 15px;
+    width: 174px;
+}
+
+.page-header .property {
+
+    margin-right: 15px;
+
+    &:last-of-type {
+        margin-right: 0;
+    }
+
+    .glyphicon {
+        font-size: 24px;
+    }
+}
+
+/* Search-specific */
+
+.search-result-header {
+    margin-top: 30px;
+
+    span {
+        margin-right: 15px;
+
+        &:last-of-type {
+            margin-right: 0 ;
+        }
+    }
+}
+
+.log-entry {
+    /** Hide the last newline in each log entry.
+     * I really should just be joining the search result
+     * lines with a <br>, but who knows how well that will
+     * play with all those filter things we have.
+     */
+
+    br:last-of-type {
+        display: none;
+    }
+}
+
+/* Log */
+
+/* Yes, this is bad and I should feel bad. */
+.page-header {
+    position: relative;
+
+    .actions {
+        font-size: $font-size-base;
+        font-weight: normal;
+        position: absolute;
+        right: 0;
+        bottom: 9px; /* .page-header's own padding-bottom */
+    }
+}
+
+.irc-highlight {
+    background-color: yellow;
+}
+
+.irc-part {
+    color: $part;
+}
+
+.irc-join {
+    color: $join;
+}
+
+.irc-line{
+    display: block;
+    overflow: auto;
+}
+
+.irc-timestamp a {
+    text-decoration: none;
+}
+
+.irc-timestamp a,
+.irc-timestamp a:visited {
+    color: rgba(1, 1, 1, 0.7);
+}
+
+.irc-timestamp a:focus,
+.irc-timestamp a:active,
+.irc-timestamp a:hover {
+    color: rgb(255, 102, 39);
+}
+
+.irc-line-join .irc-message {
+    color: green;
+    font-weight: bold;
+}
+
+.irc-line-part .irc-message, .irc-line-quit .irc-message{
+    color: #66361F;
+}
+
+.irc-nick{font-weight: bold;}
+.irc-bold{font-weight: bold;}
+.irc-underline{text-decoration: underline;}
+
+.irc-fg-0{color: #ccc;}
+.irc-fg-1{color: #000;}
+.irc-fg-2{color: #3636b3;}
+.irc-fg-3{color: #2a8d2a;}
+.irc-fg-4{color: #c43b3b;}
+.irc-fg-5{color: #c83232;}
+.irc-fg-6{color: #802780;}
+.irc-fg-7{color: #67361f;}
+.irc-fg-8{color: #daa741;}
+.irc-fg-9{color: #3ecd3e;}
+.irc-fg-10{color: #1a5555;}
+.irc-fg-11{color: #2f8d75;}
+.irc-fg-12{color: #4545e7;}
+.irc-fg-13{color: #b137b1;}
+.irc-fg-14{color: #4c4c4c;}
+.irc-fg-15{color: #969696;}
+
+.irc-bg-0{background-color: #ccc;}
+.irc-bg-1{background-color: #000;}
+.irc-bg-2{background-color: #3636b3;}
+.irc-bg-3{background-color: #2a8d2a;}
+.irc-bg-4{background-color: #c43b3b;}
+.irc-bg-5{background-color: #c83232;}
+.irc-bg-6{background-color: #802780;}
+.irc-bg-7{background-color: #67361f;}
+.irc-bg-8{background-color: #daa741;}
+.irc-bg-9{background-color: #3ecd3e;}
+.irc-bg-10{background-color: #1a5555;}
+.irc-bg-11{background-color: #2f8d75;}
+.irc-bg-12{background-color: #4545e7;}
+.irc-bg-13{background-color: #b137b1;}
+.irc-bg-14{background-color: #4c4c4c;}
+.irc-bg-15{background-color: #969696;}

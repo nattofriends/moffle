@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ format_title(channel) }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ url_for('network', network=network) }}">{{ network }}</a></li>
+    <li class="active"><a href="{{ url_for('channel', network=network, channel=channel) }}">{{ channel }}</a></li>
+{% endblock %}
+
+{% block content %}
+    <h1 class="page-header clearfix">
+        <span class="property">
+            <span class="glyphicon glyphicon-globe"></span> {{ network }}
+        </span>
+
+        <span class="property">
+            <span class="glyphicon glyphicon-list"></span> {{ channel }}
+        </span>
+
+        <form class="title-search-form small pull-right" role="search">
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="text" class="form-control" placeholder="date filter" data-filter-target=".js-dates">
+            </div>
+        </form>
+
+        <form class="title-search-form small pull-right" role="search" action="/search">
+            <input type="hidden" name="network" value="{{ network }}">
+            <input type="hidden" name="channel" value="{{ channel }}">
+
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-search"></span>
+                </span>
+                <input type="text" name="text" class="form-control" placeholder="text search" value="{% block search_inline %}{% endblock %}">
+            </div>
+        </form>
+    </h1>
+
+    <div class="js-dates">
+        {% for date in dates %}
+            <a class="network btn btn-primary" href="{{ url_for('log', network=network, channel=channel, date=date) }}" data-filter-value="{{ date }}">{{ date }}</a>
+        {% endfor %}
+    </div>
+{% endblock %}

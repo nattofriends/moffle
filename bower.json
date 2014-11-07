@@ -1,0 +1,17 @@
+{
+  "name": "moffle",
+  "version": "0.0.1",
+  "description": "Moffle reads you logs in his exciting attraction.",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-sass-official": "~3.3.0",
+    "jquery": "~2.1.1"
+  }
+}

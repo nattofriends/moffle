@@ -1,0 +1,6 @@
+bower_components/
+static/vendor
+
+static/style.css
+
+*.pyc

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% block head %}
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script src="{{ url_for('static', filename='vendor/jquery/dist/jquery.min.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+        {% block js_init %}{% endblock %}
+
+        <title>
+            {% block title %}
+                Moffle
+            {% endblock %}
+        </title>
+
+        {% endblock %}
+    </head>
+
+    <body>
+        <div class="container">
+
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="{{ url_for('index') }}">Moffle</a>
+
+                    </div>
+
+                    <div class="navbar-header">
+                        <ol class="breadcrumb navbar-text">
+                            {% block breadcrumb %}{% endblock %}
+                        </ol>
+                    </div>
+
+                    <!-- No, don't ask me why this means I need to contain the damn thing in .navbar-collapse. -->
+                    <div class="navbar-collapse">
+                        <ul class="nav navbar-nav navbar-right">
+
+                            <li>
+                                <p class="navbar-text">
+                                    {% if session_user %}
+                                        Hi {{ session_user.given_name }}
+                                        (<a href="{{ url_for('auth.logout') }}">Logout</a>)
+                                    {% else %}
+                                        <a href="{{ url_for('auth.login', next=get_encoded_path(request.url)) }}">Log in</a>
+                                    {% endif %}
+                                </p>
+                            </li>
+                        </ul>
+
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+
+            {% block content %}
+            {% endblock %}
+        </div>
+
+    </body>
+</html>

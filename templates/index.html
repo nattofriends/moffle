@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="jumbotron">
+        <p>Moffle, the Proceedings of the</p>
+        <h2>Internet Relay Chat Preservation Society</h2>
+
+        <div class="networks-container">
+            <form class="network-search-form" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control input-lg" placeholder="network" data-filter-target=".networks">
+                </div>
+            </form>
+
+            <div class="networks">
+                {% for network in networks %}
+                    <a class="network btn btn-primary" href="{{ url_for('network', network=network) }}" data-filter-value="{{ network }}">{{ network }}</a>
+                {% endfor %}
+            </div>
+         </div>
+    </div>
+
+
+{% endblock %}

@@ -1,0 +1,7 @@
+cachetools
+Flask
+Flask-OAuthlib
+Flask-WTF
+natsort
+pyScss
+uWSGI

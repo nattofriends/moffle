@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ format_title(format_search_title(form.text.data)) }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <!-- For now, searches can only be done in a channel context. -->
+    <!-- So it makes sense to breadcrumb those here. -->
+    <li><a href="{{ url_for('network', network=network) }}">{{ network }}</a></li>
+    <li><a href="{{ url_for('channel', network=network, channel=channel) }}">{{ channel }}</a></li>
+    <li class="active"><a href="{{ encoded_path }}">{{ format_search_title(form.text.data) }}</a></li>
+{% endblock %}
+
+{% block search_inline %}{% if form.text.data %}{{ form.text.data }}{% endif %}{% endblock %}
+
+{% block content %}
+    <h1 class="page-header">
+        <span class="property">
+            <span class="glyphicon glyphicon-search"></span>
+            {% if form.text.data %}
+                {{ form.text.data }}
+            {% else %}
+                Search
+            {% endif %}
+        </span>
+        
+        {% if form.network.data %}
+            <span class="property">
+                <span class="glyphicon glyphicon-globe"></span> {{ network }}
+            </span>
+        {% endif %}
+
+        {% if form.channel.data %}
+            <span class="property">
+                <span class="glyphicon glyphicon-list"></span> {{ channel }}
+            </span>
+        {% endif %}
+
+        <div class="actions pull-right">
+            {% if results %}
+            {{ results | length }} search results
+            {% endif %}
+        </div>
+    </h1>
+
+    {% if not valid %}
+        <div class="alert alert-warning" role="alert">
+            <!-- By rights, this should not belong here. -->
+            {% if not network %}
+                No network scope was provided. For performance reasons, searches need to occur to occur in a network scope.
+                <a href="{{ url_for('index') }}">Choose a network</a> and try again?
+            {% else %}
+                You didn't provide any search terms. Try again?
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if results %}
+        {% for result in results %}
+            <h5 class="search-result-header">
+                <a href="{{ url_for('log', network=network, channel=result.channel, date=result.date) }}">
+                    <span>
+                        <span class="glyphicon glyphicon-list"></span> {{ result.channel }}
+                    </span>
+
+                    <span>
+                        <span class="glyphicon glyphicon-calendar"></span> {{ result.date }}
+                    </span>
+                </a>
+            </h5>
+
+            <pre class="search-result-text log-entry">
+{% for line in result.lines %}{{ line.line | urlize | e | control_codes | line_style(line.line_no, is_search=True, network=network, ctx=line) | safe }}<br>{% endfor %}
+</pre>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <!-- By rights, this should not belong here. -->
+            Sorry, there were no search results.
+        </div>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ format_title(channel) }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ url_for('network', network=network) }}">{{ network }}</a></li>
+    <li><a href="{{ url_for('channel', network=network, channel=channel) }}">{{ channel }}</a></li>
+    <li class="active"><a href="{{ url_for('log', network=network, channel=channel, date=date) }}">{{ date }}</a></li>
+{% endblock %}
+
+{% block content %}
+    <h1 class="page-header">
+        <span class="property">
+            <span class="glyphicon glyphicon-globe"></span> {{ network }}
+        </span>
+
+        <span class="property">
+            <span class="glyphicon glyphicon-list"></span> {{ channel }}
+        </span>
+
+        <span class="property">
+            <span class="glyphicon glyphicon-calendar"></span> {{ date }}
+        </span>
+
+        <div class="actions pull-right">
+            {% if log.before %}
+                <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>
+                &middot; 
+            {% endif %}
+
+            <a href="#end">Bottom</a>
+
+            {% if log.after %}
+                &middot;
+                <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">Newer &rarr;</a>
+            {% endif %}
+        </div>
+    </h1>
+
+    <pre class="log-entry">
+{% for line_no, line in log.log %}<span>{{ line | urlize | e | control_codes | line_style(line_no, is_search=False) | safe }}</span><br>{% endfor %}
+</pre>
+
+    <a id="end"></a>
+{% endblock %}
