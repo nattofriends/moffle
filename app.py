@@ -57,6 +57,8 @@ def log(network, channel, date):
         return render_template('log.html', network=network, channel=channel, date=date, log=log)
     except exceptions.NoResultsException as ex:
         abort(404)
+    except exceptions.MultipleResultsException as ex:
+        return render_template('error/multiple_results.html', network=network, channel=channel)
     except exceptions.CanonicalNameException as ex:
         info_type, canonical_data = ex.args
 
