@@ -4,6 +4,7 @@ from flask import redirect
 from flask import request
 from flask import render_template
 from flask import url_for
+from werkzeug.contrib.fixers import ProxyFix
 
 import config
 import exceptions
@@ -112,6 +113,9 @@ def create():
 
     app.secret_key = config.SECRET_KEY
     app.debug = True
+
+    if config.FLASK_PROXY:
+        app.wsgi_app = ProxyFix(app.wsgi_app)
 
     return app
 
