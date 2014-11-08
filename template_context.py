@@ -3,6 +3,7 @@ from urllib.parse import quote
 from flask import request
 from flask import session
 
+import config
 import util
 
 @util.delay_context_processor
@@ -35,5 +36,9 @@ def inject_search_title_processor():
 @util.delay_context_processor
 def inject_title_processor():
     def inner(page_title):
-        return "{} - Moffle".format(page_title)
+        return "{} - {}".format(page_title, config.SITE_NAME)
     return dict(format_title=inner)
+
+@util.delay_context_processor
+def inject_site_brand():
+    return dict(brand=config.SITE_NAME)
