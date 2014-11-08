@@ -139,18 +139,26 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
     ctx is a grep Line object. Yes, I know it's duplicating s and line_no.
     Deal with it.
     """
-    timestamp, rest = s.split(' ', 1)
+
+    # At some point this should become yet another regex.
+    timestamp, maybe_user, rest = s.split(' ', 2)
 
     classes = []
+    msg_user_classes = []
+    msg_classes = []
 
     if ctx and ctx.line_marker == ':':
         classes.append("irc-highlight")
 
-    if _lenient_prefix(rest, "*** Quits"):
-        classes.append("irc-part")
+    if _lenient_prefix(rest, "Quits"):
+        msg_user_classes.append("irc-part")
 
-    if _lenient_prefix(rest, "*** Joins"):
-        classes.append("irc-join")
+    if _lenient_prefix(rest, "Joins"):
+        msg_user_classes.append("irc-join")
+
+    #  escaping is done before this.
+    if _lenient_prefix(rest, "&gt;"):
+        msg_classes.append("irc-greentext")
 
     # Make links back to actual line if we're in search.
     if is_search:
@@ -166,13 +174,20 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
         href = '#L{}'.format(line_no)
         id_ = 'L{}'.format(line_no)
 
-    return '<span class="{class_}">' \
+    return '<span class="{line_class}">' \
         '<a href="{href}" id="{id_}" class="js-line-no-highlight">{timestamp}</a> ' \
-        '{rest}</span>' \
+        '<span class="{msg_user_class}">{maybe_user} ' \
+        '<span class="{msg_class}">{rest}' \
+        '</span>' \
+        '</span>' \
+        '</span>' \
         .format(
-        class_=' '.join(classes),
+        line_class=' '.join(classes),
         timestamp=timestamp,
         href=href,
+        msg_user_class=' '.join(msg_user_classes),
+        msg_class=' '.join(msg_classes),
+        maybe_user=maybe_user,
         id_=id_,
         rest=rest,
     )

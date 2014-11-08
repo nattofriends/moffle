@@ -5,6 +5,7 @@ $icon-font-path: "../../static/vendor/bootstrap-sass-official/assets/fonts/boots
 
 $part: #66361F;
 $join: green;
+$greentext: #789922;
 
 .navbar-header .breadcrumb {
     background-color: inherit;
@@ -113,36 +114,10 @@ $join: green;
     color: $join;
 }
 
-.irc-line{
-    display: block;
-    overflow: auto;
+.irc-greentext {
+    color: $greentext;
 }
 
-.irc-timestamp a {
-    text-decoration: none;
-}
-
-.irc-timestamp a,
-.irc-timestamp a:visited {
-    color: rgba(1, 1, 1, 0.7);
-}
-
-.irc-timestamp a:focus,
-.irc-timestamp a:active,
-.irc-timestamp a:hover {
-    color: rgb(255, 102, 39);
-}
-
-.irc-line-join .irc-message {
-    color: green;
-    font-weight: bold;
-}
-
-.irc-line-part .irc-message, .irc-line-quit .irc-message{
-    color: #66361F;
-}
-
-.irc-nick{font-weight: bold;}
 .irc-bold{font-weight: bold;}
 .irc-underline{text-decoration: underline;}
 
