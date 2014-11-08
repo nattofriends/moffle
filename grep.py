@@ -37,7 +37,7 @@ class GrepBuilder:
         Replacement('search', required=True, regex=True),
     ]
 
-    LINE_REGEX = re.compile("(?P<channel>[#&].*)_(?P<date>\d{8})\.log(?P<line_marker>-|:)(?P<line_no>\d+)(?P=line_marker)(?P<line>.*)", re.M)
+    LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>\d{8})\.log(?P<line_marker>-|:)(?P<line_no>\d+)(?P=line_marker)(?P<line>.*)", re.M)
 
     def __init__(self):
         self.frozen = False
@@ -66,7 +66,7 @@ class GrepBuilder:
 
     @chaining
     def channels(self, channels):
-        self.channels = ".*({}).*".format("|".join(["{}_".format(ch) for ch in channels]))
+        self.channels = ".*({}).*".format("|".join(["{}[_/]".format(ch) for ch in channels]))
 
     @chaining
     def authors(self, authors):

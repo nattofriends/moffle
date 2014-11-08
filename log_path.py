@@ -155,3 +155,103 @@ class LogPath:
         file_matches = [match.groupdict() for match in file_matches if match is not None]
 
         return file_matches
+
+class DirectoryDelimitedLogPath(LogPath):
+    LOG_SUFFIX = '.log'
+
+    def __init__(self):
+        super(DirectoryDelimitedLogPath, self).__init__()
+
+    def channel_dates(self, network, channel):
+        dates = self._dates_list(network, channel)
+
+        if not dates:
+            raise exceptions.NoResultsException()
+
+        if not self.ac.evaluate(util.Scope.CHANNEL, channel):
+            raise exceptions.NoResultsException()
+
+        dates = [x['date'] for x in dates]
+        return sorted(dates, reverse=True)
+
+    def log(self, network, channel, date):
+        channels = self._channels_list(network)
+        dates = self._dates_list(network, channel)
+
+        if channels is None or dates is None:
+            raise exceptions.NoResultsException()
+
+        if not self.ac.evaluate(util.Scope.CHANNEL, channel):
+            raise exceptions.NoResultsException()
+
+        try:
+            self._maybe_channel(network, channel, channels)
+        except (
+            exceptions.NoResultsException,
+            exceptions.MultipleResultsException,
+            exceptions.CanonicalNameException,
+        ):
+            raise
+
+        parsed_date = ldp.parse(date)
+        if parsed_date != date:
+            raise exceptions.CanonicalNameException(util.Scope.DATE, parsed_date)
+
+        # Reverse the human-friendly ordering here.
+        channel_dates = self.channel_dates(network, channel)[::-1]
+        log = [log_date for log_date in channel_dates if log_date == date]
+
+        if len(log) == 0:
+            raise exceptions.NoResultsException()
+
+        log = log[0]
+        log_idx = channel_dates.index(log)
+
+        before, after = None, None
+        if log_idx > 0:
+            before = channel_dates[log_idx - 1]
+        if log_idx < len(channel_dates) - 1:
+            after = channel_dates[log_idx + 1]
+
+        log_path = os.path.join(self.channel_to_path(network, channel),
+                                log + DirectoryDelimitedLogPath.LOG_SUFFIX)
+
+        log_file = enumerate(open(log_path, errors='ignore').readlines(), start=1)
+
+        return LogResult(log_file, before, after)
+
+    # This lets us use LogPath.networks instead of reimplementing.
+    @cachetools.lru_cache(maxsize=128)
+    def network_to_path(self, network):
+        return os.path.join(config.LOG_BASE, network)
+
+    @cachetools.lru_cache(maxsize=128)
+    def channel_to_path(self, network, channel):
+        return os.path.join(self.network_to_path(network), channel)
+
+    # This lets us use LogPath.channels instead of reimplementing.
+    @cachetools.ttl_cache(maxsize=128, ttl=21600)
+    def _channels_list(self, network):
+        network_base = self.network_to_path(network)
+
+        if not os.path.exists(network_base):
+            return None
+
+        files = os.listdir(network_base)
+        files = [{'channel': channel} for channel in files]
+
+        return files
+
+    def _dates_list(self, network, channel):
+        channel_base = self.channel_to_path(network, channel)
+
+        if not os.path.exists(channel_base):
+            return None
+
+        files = os.listdir(channel_base)
+        files = [{
+            'channel' : channel,
+            'date': filename[:-1*len(DirectoryDelimitedLogPath.LOG_SUFFIX)]
+        } for filename in files if filename.endswith(DirectoryDelimitedLogPath.LOG_SUFFIX)]
+
+        return files
