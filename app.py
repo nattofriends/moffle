@@ -13,10 +13,10 @@ import util
 # Must import to run decorator
 import template_context
 import line_format
+import log_path
 
 from forms import SearchForm
 from grep import GrepBuilder
-from log_path import LogPath
 
 app = Flask(__name__)
 
@@ -103,7 +103,7 @@ def not_found(ex):
 
 def create():
     global paths
-    paths = LogPath()
+    paths = getattr(log_path, config.LOG_PATH_CLASS)()
 
     util.register_context_processors(app)
     util.register_template_filters(app)
