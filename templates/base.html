@@ -12,7 +12,7 @@
 
         <title>
             {% block title %}
-                Moffle
+                {{ brand }}
             {% endblock %}
         </title>
 
@@ -25,7 +25,7 @@
             <nav class="navbar navbar-default" role="navigation">
                 <div class="container-fluid">
                     <div class="navbar-header">
-                        <a class="navbar-brand" href="{{ url_for('index') }}">Moffle</a>
+                        <a class="navbar-brand" href="{{ url_for('index') }}">{{ brand }}</a>
 
                     </div>
 

@@ -1,3 +1,6 @@
+# Why would you change me?
+SITE_NAME = "Moffle"
+
 # A path, like "/var/lib/znc/users/"
 LOG_BASE = "/path/to/znc/users"
 
