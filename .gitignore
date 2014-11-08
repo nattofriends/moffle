@@ -1,6 +1,15 @@
 bower_components/
 static/vendor
+python/
 
 static/style.css
 
 *.pyc
+*.swp
+*.swo
+
+config.py
+Makefile.appconfig
+
+app.pid
+uwsgi.log

@@ -1,6 +1,10 @@
 # A path, like "/var/lib/znc/users/"
 LOG_BASE = "/path/to/znc/users"
 
+# Whether or not Flask is behind a HTTP proxy.
+# Affects whether or not we insert proxy middleware.
+FLASK_PROXY = True
+
 # Flask secret key for session support.
 SECRET_KEY = "your secret key"
 
