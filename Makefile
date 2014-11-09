@@ -16,6 +16,8 @@ PIDPATH = $(BASEDIR)/$(PIDFILE)
 VENV = $(BASEDIR)/$(VENV_NAME)
 BIN = $(VENV)/bin/uwsgi
 
+.PHONY: tests
+
 start:
 	$(BIN) \
 		--daemonize $(UWSGI_LOG) \
@@ -37,3 +39,6 @@ static/style.css: static/style.css.scss
 
 init-env:
 	ln -s ../bower_components static/vendor
+
+tests:
+	PYTHONPATH=. $(VENV)/bin/py.test tests

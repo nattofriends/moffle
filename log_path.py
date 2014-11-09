@@ -32,7 +32,7 @@ class LogPath:
             network for network in base_contents
             if os.path.isdir(
                 self.network_to_path(network)
-            ) and self.ac.evaluate(util.Scope.NETWORK, network)
+            ) and self.ac.evaluate(network, None)
         ]
 
         return sorted(dirs)
@@ -44,15 +44,14 @@ class LogPath:
         if matches is None:
             raise exceptions.NoResultsException()
 
-        # User is not allowed to view this network.
-        if not self.ac.evaluate(util.Scope.NETWORK, network):
-            raise exceptions.NoResultsException()
-
         channels = natsorted({
             filename['channel']
             for filename in matches
-            if self.ac.evaluate(util.Scope.CHANNEL, filename['channel'])
+            if self.ac.evaluate(network, filename['channel'])
         })
+
+        if not channels:
+            raise exceptions.NoResultsException()
 
         return channels
 
@@ -62,7 +61,7 @@ class LogPath:
         if matches is None:
             raise exceptions.NoResultsException()
 
-        if not self.ac.evaluate(util.Scope.CHANNEL, channel):
+        if not self.ac.evaluate(network, channel):
             raise exceptions.NoResultsException()
 
         dates = [filename['date'] for filename in matches if filename['channel'] == channel]
@@ -76,7 +75,7 @@ class LogPath:
         if matches is None:
             raise exceptions.NoResultsException()
 
-        if not self.ac.evaluate(util.Scope.CHANNEL, channel):
+        if not self.ac.evaluate(network, channel):
             raise exceptions.NoResultsException()
 
         try:
@@ -168,7 +167,7 @@ class DirectoryDelimitedLogPath(LogPath):
         if not dates:
             raise exceptions.NoResultsException()
 
-        if not self.ac.evaluate(util.Scope.CHANNEL, channel):
+        if not self.ac.evaluate(network, channel):
             raise exceptions.NoResultsException()
 
         dates = [x['date'] for x in dates]
@@ -181,7 +180,7 @@ class DirectoryDelimitedLogPath(LogPath):
         if channels is None or dates is None:
             raise exceptions.NoResultsException()
 
-        if not self.ac.evaluate(util.Scope.CHANNEL, channel):
+        if not self.ac.evaluate(network, channel):
             raise exceptions.NoResultsException()
 
         try:

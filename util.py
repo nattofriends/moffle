@@ -21,6 +21,11 @@ def register_template_filters(app):
         app.template_filter(filter_name)(tf)
 
 class Scope:
+    ROOT = "root"
     NETWORK = "network"
     CHANNEL = "channel"
     DATE = "date"
+
+class Verdict:
+    ALLOW = "allow"
+    DENY = "deny"

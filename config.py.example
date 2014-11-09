@@ -27,7 +27,7 @@ GOOGLE_OAUTH_CONSUMER_SECRET = ""
 # have no consideration of their containing network
 ACL = (
     # Public ACL rules
-    ('deny', '*', '*', '*'),
-    ('allow', '*', 'network', 'rizon'),
-    ('allow', '*', 'channel', '#help'),
+    ('deny', '*', ('*', '*'), ('root', 'root')).
+    ('allow', '*', ('network', 'rizon'), ('root', 'root')),
+    ('allow', '*', ('channel', '#help'), ('network', 'rizon')),
 )
