@@ -44,4 +44,18 @@
 </pre>
 
     <a id="end"></a>
+
+    <div class="bottom-actions pull-right">
+        {% if log.before %}
+            <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>
+            &middot;
+        {% endif %}
+
+        <a href="#top">Top</a>
+
+        {% if log.after %}
+            &middot;
+            <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">Newer &rarr;</a>
+        {% endif %}
+    </div>
 {% endblock %}
