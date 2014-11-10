@@ -149,6 +149,18 @@ TEST_INTEGRATION_INPUTS = OrderedDict((
             True,
         ),
     ),
+    (
+        "allow user narrowing in child scope",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', '*', ('network', 'net'), ('root', 'root')),
+                ('allow', 'test@example.com', ('channel', '#channel'), ('network', 'net')),
+            ),
+            'test@example.com', 'net', '#channel',
+            True,
+        ),
+    ),
 
 ))
 

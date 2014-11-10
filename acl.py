@@ -53,7 +53,7 @@ class Node:
         if all([
             child_parent_scope == self.scope,
             child_parent_value == self.value,
-            (child.user == self.user or (self.user == ANY and self.scope == util.Scope.ROOT)),
+            self.user in (child.user, ANY),
         ]):
             self.children.append(child)
             child.parent = self
