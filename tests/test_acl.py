@@ -26,6 +26,18 @@ TEST_INTEGRATION_INPUTS = OrderedDict((
         ),
     ),
     (
+        "allow user multiple named network",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', 'test@example.com', ('network', 'net'), ('root', 'root')),
+                ('allow', 'test@example.com', ('network', 'net2'), ('root', 'root')),
+            ),
+            'test@example.com','net', None,
+            True,
+        ),
+    ),
+    (
         "allow user named network and channel",
         (
             (

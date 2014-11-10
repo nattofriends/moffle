@@ -8,6 +8,7 @@ import cachetools
 import config
 import util
 
+MAX_PARENT_REFERENCE_RESOLUTION_ROUNDS = 10
 ANY = '*'
 
 # not used
@@ -123,6 +124,7 @@ class AccessControl:
             else:
                 unresolved_nodes.append(target)
 
+        resolution_rounds = 0
         while True:
             next_unresolved_nodes = []
             for node in unresolved_nodes:
@@ -130,9 +132,13 @@ class AccessControl:
                     next_unresolved_nodes.append(node)
             unresolved_nodes = next_unresolved_nodes
 
-            # TODO: Trip after too many rounds of not finishing
+            resolution_rounds += 1
+
             if not unresolved_nodes:
                 break
+
+            if resolution_rounds > MAX_PARENT_REFERENCE_RESOLUTION_ROUNDS:
+                raise RuntimeError("Spent too much time resolving parent references, probably a node has a non-existent or misspelled parent", unresolved_nodes)
 
     @property
     def user_email(self):

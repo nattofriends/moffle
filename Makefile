@@ -41,4 +41,4 @@ init-env:
 	ln -s ../bower_components static/vendor
 
 tests:
-	PYTHONPATH=. $(VENV)/bin/py.test tests
+	PYTHONPATH=. $(VENV)/bin/py.test -vvv tests
