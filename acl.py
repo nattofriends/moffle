@@ -200,9 +200,10 @@ class AccessControl:
         applicable = sorted(
             applicable,
             key=lambda node: (
-                Node.SCOPE_SPECIFICITY.index(node.scope),
-                node.user == ANY,  # False < True for node.user checking
-                Node.VERDICT_DISAMBIGUATION.index(node.verdict),  # If all else matches, prefer to deny
+                Node.SCOPE_SPECIFICITY.index(node.scope),  # Order by nearest scope,
+                node.value == ANY,  # specific target over wildcard,
+                node.user == ANY,  # specific user over wildcard,
+                Node.VERDICT_DISAMBIGUATION.index(node.verdict),  # Deny over allow
             ),
         )
 
