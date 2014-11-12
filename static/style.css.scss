@@ -95,10 +95,13 @@ $greentext: #789922;
 
     .actions {
         font-size: $font-size-base;
-        font-weight: normal;
         position: absolute;
         right: 0;
         bottom: 9px; /* .page-header's own padding-bottom */
+
+        .pagination {
+            margin: 0;
+        }
     }
 }
 
