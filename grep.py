@@ -9,6 +9,8 @@ from subprocess import check_output
 import logging
 import re
 
+import cachetools
+
 logger = logging.getLogger(__name__)
 
 
@@ -123,6 +125,8 @@ class GrepBuilder:
 
         return hits
 
+
+    @cachetools.lru_cache(maxsize=16384)
     def _process_output(self, output):
         splits = output.split('\n--\n')
         return [self._process_hit(split.strip()) for split in splits]

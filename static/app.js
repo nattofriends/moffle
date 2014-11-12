@@ -1,20 +1,21 @@
 $(document).ready(function() {
     new Autofilter();
 
-    /* Maybe highlight anchor text on load (only lines, not #end) */
-    var hash = $(location).attr('hash');
-    if (hash.charAt(1) == "L") {
-        $(hash).parent().addClass("irc-highlight");
+    if (window.location.pathname !== "/search/") {
+        /* Maybe highlight anchor text on load (only lines, not #end) */
+        var hash = $(location).attr('hash');
+        if (hash.charAt(1) == "L") {
+            $(hash).parent().addClass("irc-highlight");
+        }
+
+        /* Yes, I am manually doing this. */
+        $(".js-line-no-highlight").click(function(evt) {
+            console.log(this);
+            /* I am am expert. */
+            $(".js-line-no-highlight").parent().removeClass("irc-highlight");
+            $(evt.target).parent().addClass("irc-highlight");
+        });
     }
-
-    /* Yes, I am manually doing this. */
-    $(".js-line-no-highlight").click(function(evt) {
-        console.log(this);
-        /* I am am expert. */
-        $(".js-line-no-highlight").parent().removeClass("irc-highlight");
-        $(evt.target).parent().addClass("irc-highlight");
-    });
-
 
 });
 
