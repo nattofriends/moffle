@@ -82,7 +82,7 @@ $greentext: #789922;
      * play with all those filter things we have.
      */
 
-    br:last-of-type {
+    br:last-of-type, .ellipsis:last-of-type {
         display: none;
     }
 }

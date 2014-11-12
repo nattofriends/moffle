@@ -2,6 +2,7 @@
 """
 from collections import namedtuple
 from functools import wraps
+from itertools import groupby
 from os.path import expanduser
 from os.path import expandvars
 from subprocess import CalledProcessError
@@ -120,6 +121,8 @@ class GrepBuilder:
 
             # On int(hit.begin): String sorting strikes again!
             hits.sort(key=lambda hit: (hit.date, int(hit.begin)), reverse=True)
+
+            hits = [list(group) for _, group in groupby(hits, key=lambda hit: hit.date)]
 
         self.clear()
 
