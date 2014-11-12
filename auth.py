@@ -73,6 +73,7 @@ def authorized():
         flash("You didn't sign in.")
         return redirect(next_url)
 
+    session.permanent = True
     session['google_token'] = (resp['access_token'], '')
     session['user'] = google.get('userinfo').data
     return redirect(next_url)
