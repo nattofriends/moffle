@@ -42,7 +42,8 @@ class GrepBuilder:
 
     LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>\d{8})\.log(?P<line_marker>-|:)(?P<line_no>\d+)(?P=line_marker)(?P<line>.*)", re.M)
 
-    def __init__(self):
+    def __init__(self, log_path):
+        self.log_path = log_path
         self.frozen = False
         self.params = self.defaults.copy()
         self.regex_params = self.regex_defaults.copy()
@@ -53,7 +54,8 @@ class GrepBuilder:
         for replacement in self.regex_defaults:
             self.replacements.append(Replacement(replacement, required=False, regex=True))
 
-    clear = __init__
+    def clear(self):
+        self.__init__(self.log_path)
 
     def freeze(self):
         self.frozen = True

@@ -89,8 +89,7 @@ def search():
         results = []
 
     else:
-
-        grep = GrepBuilder() \
+        grep = GrepBuilder(paths) \
             .channels([form.channel.data]) \
             .dir(paths.network_to_path(form.network.data)) \
             .search(form.text.data)
