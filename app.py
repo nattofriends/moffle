@@ -81,17 +81,12 @@ def search():
     valid = form.validate()
 
     # We should have another copy of this to use...
-    if not all([
-        valid,
-        paths.ac.evaluate('network', form.network.data),
-        paths.ac.evaluate('channel', form.channel.data),
-    ]):
+    if not valid:
         results = []
-
     else:
         grep = GrepBuilder(paths) \
             .channels([form.channel.data]) \
-            .dir(paths.network_to_path(form.network.data)) \
+            .network(form.network.data) \
             .search(form.text.data)
 
         results = grep.run()

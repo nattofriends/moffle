@@ -5,8 +5,9 @@ from functools import wraps
 from itertools import groupby
 from os.path import expanduser
 from os.path import expandvars
-from subprocess import CalledProcessError
-from subprocess import check_output
+from os.path import join
+from subprocess import Popen
+from subprocess import PIPE
 import logging
 import re
 
@@ -23,7 +24,7 @@ Line = namedtuple('Line', ['channel', 'date', 'line_marker', 'line_no', 'line'])
 class GrepBuilder:
     """Since we're calling it ``Builder'', let's go with chained construction, as tired of a Java idiom as that may be.
     """
-    template = """find {path} -type f -regextype posix-extended -iregex '{channels}' -print0 | LC_ALL=C xargs -0 grep -in -C {context} '{search}' || true"""
+    template = """LC_ALL=C xargs -0 grep -in -C {context} '{search}'"""
     regex = "<{author}> .*{search}.*"
 
     defaults = {
@@ -35,8 +36,6 @@ class GrepBuilder:
     }
 
     other_replacements = [
-        Replacement('path', required=True, regex=False),
-        Replacement('channels', required=True, regex=False),
         Replacement('search', required=True, regex=True),
     ]
 
@@ -70,8 +69,13 @@ class GrepBuilder:
         return wrapper
 
     @chaining
+    def network(self, network):
+        self.network = network
+
+    @chaining
     def channels(self, channels):
-        self.channels = ".*({}).*".format("|".join(["{}[_/]".format(ch) for ch in channels]))
+        #self.channels = ".*({}).*".format("|".join(["{}[_/]".format(ch) for ch in channels]))
+        self.channels = channels
 
     @chaining
     def authors(self, authors):
@@ -109,12 +113,26 @@ class GrepBuilder:
                     raise Exception("Missing required parameters {}".format(ex.args)) from None
 
         params.update(search=self.regex.format(**regex_params))
+
+        channel_dates = self.log_path.channels_dates(self.network, self.channels)
+
+        # TODO: Perform date filtering here
+
+        channel_paths = [join(
+            self.log_path.network_to_path(self.network),
+            log['filename'],
+        ) for log in channel_dates]
+
+        self.channel_paths = '\0'.join(channel_paths).encode()
+
         return self.template.format(**params)
 
     def run(self):
         cmd = self.emit()
 
-        output = check_output(cmd, shell=True).decode('utf-8', errors='ignore').strip()
+        proc = Popen(cmd, shell=True, stdout=PIPE, stdin=PIPE)
+        output, _ = proc.communicate(self.channel_paths)
+        output = output.decode('utf-8', errors='ignore').strip()
 
         if not output:
             hits = None
@@ -129,7 +147,6 @@ class GrepBuilder:
         self.clear()
 
         return hits
-
 
     @cachetools.lru_cache(maxsize=16384)
     def _process_output(self, output):

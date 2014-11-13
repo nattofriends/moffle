@@ -72,6 +72,21 @@ class LogPath:
 
         return sorted(dates, reverse=True)
 
+    def channels_dates(self, network, channels):
+        """For search use.
+        Further filtering will be performed on the search side.
+        """
+        matches = self._channels_list(network)
+
+        if matches is None:
+            raise exceptions.NoResultsException()
+
+        # This behavior is slightly different from elsewhere.
+        channels = [ch for ch in channels if self.ac.evaluate(network, ch)]
+
+        files = [filename for filename in matches if filename['channel'] in channels]
+
+        return files
 
     def log(self, network, channel, date):
         matches = self._channels_list(network)
@@ -246,8 +261,15 @@ class DirectoryDelimitedLogPath(LogPath):
         if not os.path.exists(network_base):
             return None
 
+        if network in self._channel_list_cache:
+            if date.today() == self._channel_list_stamp[network]:
+                return self._channel_list_cache[network]
+
         files = os.listdir(network_base)
         files = [{'channel': channel} for channel in files]
+
+        self._channel_list_stamp[network] = date.today()
+        self._channel_list_cache[network] = files
 
         return files
 
