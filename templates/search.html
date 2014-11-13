@@ -7,8 +7,14 @@
 {% block breadcrumb %}
     <!-- For now, searches can only be done in a channel context. -->
     <!-- So it makes sense to breadcrumb those here. -->
-    <li><a href="{{ url_for('network', network=network) }}">{{ network }}</a></li>
-    <li><a href="{{ url_for('channel', network=network, channel=channel) }}">{{ channel }}</a></li>
+    {% if network %}
+        <li><a href="{{ url_for('network', network=network) }}">{{ network }}</a></li>
+    {% endif %}
+
+    {% if channel %}
+        <li><a href="{{ url_for('channel', network=network, channel=channel) }}">{{ channel }}</a></li>
+    {% endif %}
+
     <li class="active"><a href="{{ encoded_path }}">{{ format_search_title(form.text.data) }}</a></li>
 {% endblock %}
 

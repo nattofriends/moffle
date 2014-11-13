@@ -81,8 +81,11 @@ def search():
     valid = form.validate()
 
     # We should have another copy of this to use...
-    if not paths.ac.evaluate('network', form.network.data) \
-            or not paths.ac.evaluate('channel', form.channel.data):
+    if not all([
+        valid,
+        paths.ac.evaluate('network', form.network.data),
+        paths.ac.evaluate('channel', form.channel.data),
+    ]):
         results = []
 
     else:
