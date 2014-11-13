@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 from collections import namedtuple
+from datetime import date
 from operator import itemgetter
 import os
 import re
@@ -24,6 +26,8 @@ class LogPath:
 
     def __init__(self):
         self.ac = AccessControl(config.ACL)
+        self._channel_list_cache = cachetools.LRUCache(maxsize=128)
+        self._channel_list_stamp = defaultdict(lambda: date.fromtimestamp(0))
 
     def networks(self):
         base_contents = os.listdir(config.LOG_BASE)
@@ -141,17 +145,23 @@ class LogPath:
             # We have nothing. It is unfortunate.
             raise exceptions.NoResultsException()
 
-    @cachetools.ttl_cache(maxsize=128, ttl=21600)
     def _channels_list(self, network):
         channel_base = self.network_to_path(network)
 
         if not os.path.exists(channel_base):
             return None
 
+        if network in self._channel_list_cache:
+            if date.today() == self._channel_list_stamp[network]:
+                return self._channel_list_cache[network]
+
         files = os.listdir(channel_base)
 
         file_matches = [LOG_FILENAME_REGEX.match(filename) for filename in files]
         file_matches = [match.groupdict() for match in file_matches if match is not None]
+
+        self._channel_list_stamp[network] = date.today()
+        self._channel_list_cache[network] = file_matches
 
         return file_matches
 
