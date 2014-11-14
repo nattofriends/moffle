@@ -6,8 +6,11 @@ from functools import partial
 from itertools import islice
 from itertools import groupby
 from math import ceil
+from math import floor
 from multiprocessing import Pool
 from os.path import join
+from statistics import mean
+from statistics import StatisticsError
 from subprocess import Popen
 from subprocess import PIPE
 import logging
@@ -66,6 +69,10 @@ class GrepBuilder:
             self.pool.map(partial(run_worker, cmd), channel_paths),
         )
 
+        output = list(output)
+        output2 = output
+
+
         output = '\n--\n'.join(output)
 
         if not output:
@@ -87,6 +94,43 @@ class GrepBuilder:
         return self.pool.map(_process_hit, splits, chunksize=OUTPUT_PROCESS_CHUNK_SIZE)
 
     def _process_channel_dates(self, channel_dates, network, date_begin, date_end):
+        def next_chunk_size(chunk_sizes, target_chunk_size):
+            """Allocate fair chunk sizes (instead of just ceiling all the time).
+            This avoids the leftover guy who only has one path. This is bad
+            because then grep doesn't output the filename and we then have no way of finding
+            it out.
+            """
+
+            try:
+                average_chunk_size = mean(chunk_sizes)
+            except StatisticsError:
+                average_chunk_size = 0
+
+            if average_chunk_size < target_chunk_size:
+                chunk_size = ceil(target_chunk_size)
+            else:
+                chunk_size = floor(target_chunk_size)
+
+            return chunk_size
+
+        def fold_chunks(chunks):
+            """Even after fair chunking, if there are too many workers and not enough
+            paths to process, there could still be chunks with only one path to process.
+            In this case, just fold the chunk in to a neighbor.
+            """
+            chunks_folded = chunks[:1]
+
+            for elem in chunks[1:]:
+                if len(elem) == 1:
+                    chunks_folded[-1].extend(elem)
+                else:
+                    chunks_folded.append(elem)
+            if len(chunks_folded[0]) == 1:
+                chunks_folded[1] == chunks_folded[0] + chunks_folded[1]
+                del chunks_folded[0]
+
+            return chunks_folded
+
         filtered_channel_dates = []
 
         for log in channel_dates:
@@ -103,16 +147,23 @@ class GrepBuilder:
 
         channel_paths.sort()
 
-        chunk_size = ceil(len(channel_paths) / config.SEARCH_WORKERS)
+        target_chunk_size = len(channel_paths) / config.SEARCH_WORKERS
+        chunk_sizes = []
 
         paths_it = iter(channel_paths)
         chunks = []
 
         while True:
+            chunk_size = next_chunk_size(chunk_sizes, target_chunk_size)
+
             chunk = list(islice(paths_it, chunk_size))
             if not chunk:
                 break
+
+            chunk_sizes.append(chunk_size)
             chunks.append(chunk)
+
+        chunks = fold_chunks(chunks)
 
         channel_paths = ['\0'.join(chunk).encode() for chunk in chunks]
 
@@ -138,6 +189,7 @@ def _process_hit(split):
     for line in lines:
         m = LINE_REGEX.search(line)
 
+        # For line continuations
         if not m:
             if not line_objs:
                 continue
@@ -148,8 +200,6 @@ def _process_hit(split):
 
         line = Line(**m.groupdict())
 
-        # If we have no data, this is the first line.
-        # So set the hit metadata.
         if not channel:
             channel = line.channel
             date = line.date
