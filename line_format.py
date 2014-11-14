@@ -18,6 +18,12 @@ CTRL_REGEX = re.compile(r'(?:[%s%s%s])|(%s(?:\d{1,2}),?(?:\d{1,2})?)' % (
 
 
 def ctrl_to_colors(text):
+    def try_color(char):
+        try:
+            return int(char)
+        except ValueError:
+            return None
+
     # the first character is CTRL_COLOR
     colors = text[1:].split(',')
 
@@ -28,11 +34,11 @@ def ctrl_to_colors(text):
         fg_color_id = None
         bg_color_id = None
     elif len(colors) == 1:
-        fg_color_id = int(colors[0])
+        fg_color_id = try_color(colors[0])
         bg_color_id = None
     else:
-        fg_color_id = int(colors[0])
-        bg_color_id = int(colors[1])
+        fg_color_id = try_color(colors[0])
+        bg_color_id = try_color(colors[1])
     return (fg_color_id, bg_color_id)
 
 
