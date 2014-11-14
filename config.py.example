@@ -20,6 +20,13 @@ SECRET_KEY = "your secret key"
 GOOGLE_OAUTH_CONSUMER_KEY = ""
 GOOGLE_OAUTH_CONSUMER_SECRET = ""
 
+# Number of search worker processes.
+SEARCH_WORKERS = 8
+
+# Number of context lines around each search result.
+SEARCH_CONTEXT = 4
+
+
 # 4-tuples of allow/deny, oauth email (* = all), scope (network/channel/*),
 # match (regex or *)
 # Rules are considered by their scope, then their action
