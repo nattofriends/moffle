@@ -3,6 +3,7 @@ from collections import defaultdict
 from collections import namedtuple
 from datetime import date
 from operator import itemgetter
+from itertools import chain
 import os
 import re
 
@@ -198,6 +199,22 @@ class DirectoryDelimitedLogPath(LogPath):
         dates = [x['date'] for x in dates]
         return sorted(dates, reverse=True)
 
+    def channels_dates(self, network, channels):
+        """
+        For search use. Further filtering will be performed on the search side.
+        """
+        matches = self._channels_list(network)
+
+        if matches is None:
+            raise exceptions.NoResultsException()
+
+        # This behavior is slightly different from elsewhere.
+        channels = [ch for ch in channels if self.ac.evaluate(network, ch)]
+
+        files = chain.from_iterable([self._dates_list(network, ch) for ch in channels])
+
+        return files
+
     def log(self, network, channel, date):
         channels = self._channels_list(network)
         dates = self._dates_list(network, channel)
@@ -282,7 +299,8 @@ class DirectoryDelimitedLogPath(LogPath):
         files = os.listdir(channel_base)
         files = [{
             'channel' : channel,
-            'date': filename[:-1*len(DirectoryDelimitedLogPath.LOG_SUFFIX)]
+            'date': filename[:-1*len(DirectoryDelimitedLogPath.LOG_SUFFIX)],
+            'filename': os.path.join(channel_base, filename)
         } for filename in files if filename.endswith(DirectoryDelimitedLogPath.LOG_SUFFIX)]
 
         return files
