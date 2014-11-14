@@ -18,7 +18,7 @@ BIN = $(VENV)/bin/uwsgi
 
 .PHONY: tests
 
-start:
+start: css ensure-stopped
 	$(BIN) \
 		--daemonize $(UWSGI_LOG) \
 		--pidfile $(PIDFILE) \
@@ -28,6 +28,17 @@ start:
 
 stop:
 	$(BIN) --stop $(PIDFILE)
+	while [ ! -z "`pgrep -F $(PIDFILE)`" ]; do sleep .1; done
+
+ensure-stopped:
+	@if [ -z "`pgrep -F $(PIDFILE)`" ]; then \
+		exit 0; \
+	else \
+		echo "Cowardly refusing to run when another instance is already running."; \
+		exit 1; \
+	fi
+
+restart: stop start
 
 clean:
 	rm static/style.css
