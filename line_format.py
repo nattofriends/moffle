@@ -10,7 +10,7 @@ CTRL_RESET = '\x0F'      # ^O = reset
 CTRL_UNDERLINE = '\x1F'  # ^_ = underline
 CTRL_BOLD = '\x02'       # ^B = bold
 
-CTRL_REGEX = re.compile(r'(?:[%s%s%s])|(%s(?:\d{1,2}),?(?:\d{1,2})?)' % (
+CTRL_REGEX = re.compile(r'(?:[%s%s%s])|(%s(?:\d{1,2})?,?(?:\d{1,2})?)' % (
     CTRL_RESET,
     CTRL_UNDERLINE,
     CTRL_BOLD,
@@ -102,7 +102,11 @@ def irc_format(text, autoescape=None):
         was_control_code = True
         if first_char == CTRL_COLOR:
             (fg_color_id, bg_color_id) = ctrl_to_colors(fragment)
-            line_state.set_color(fg_color_id, bg_color_id)
+
+            if fg_color_id or bg_color_id:
+                line_state.set_color(fg_color_id, bg_color_id)
+            else:
+                line_state.reset()
         elif first_char == CTRL_RESET:
             line_state.reset()
         elif first_char == CTRL_UNDERLINE:
