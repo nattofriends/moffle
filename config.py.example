@@ -26,6 +26,8 @@ SEARCH_WORKERS = 8
 # Number of context lines around each search result.
 SEARCH_CONTEXT = 4
 
+# The number of weeks to segment AJAX searches into.
+SEARCH_CHUNK_INTERVAL_WEEKS = 4
 
 # 4-tuples of allow/deny, oauth email (* = all), scope (network/channel/*),
 # match (regex or *)
