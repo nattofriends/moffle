@@ -95,6 +95,7 @@ $greentext: #789922;
 
     .actions {
         font-size: $font-size-base;
+        font-weight: normal;
         position: absolute;
         right: 0;
         bottom: 9px; /* .page-header's own padding-bottom */
@@ -106,7 +107,7 @@ $greentext: #789922;
 }
 
 .bottom-actions {
-    margin-bottom: 60px;
+    /* Required before when not using pagination. Keep in case we need it */
 }
 
 .irc-highlight {
