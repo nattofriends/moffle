@@ -1,17 +1,22 @@
 """Fast grep or something.
 """
 from collections import namedtuple
-from functools import wraps
+from datetime import datetime
+from functools import partial
+from itertools import islice
 from itertools import groupby
-from os.path import expanduser
-from os.path import expandvars
+from math import ceil
+from multiprocessing import Pool
 from os.path import join
 from subprocess import Popen
 from subprocess import PIPE
 import logging
 import re
+import signal
 
 import cachetools
+
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -20,119 +25,48 @@ Replacement = namedtuple('Replacement', ['name', 'required', 'regex'])
 Hit = namedtuple('Hit', ['channel', 'date', 'begin', 'lines'])
 Line = namedtuple('Line', ['channel', 'date', 'line_marker', 'line_no', 'line'])
 
+LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>\d{8})\.log(?P<line_marker>-|:)(?P<line_no>\d+)(?P=line_marker)(?P<line>.*)", re.M)
+
+OUTPUT_PROCESS_CHUNK_SIZE = 32
 
 class GrepBuilder:
-    """Since we're calling it ``Builder'', let's go with chained construction, as tired of a Java idiom as that may be.
-    """
     template = """LC_ALL=C xargs -0 grep -in -C {context} '{search}'"""
-    regex = "<{author}> .*{search}.*"
+    regex = "<{author}> .*{query}.*"
 
-    defaults = {
-        'context': 4,
-    }
-
-    regex_defaults = {
-        'author': '[^>]*',
-    }
-
-    other_replacements = [
-        Replacement('search', required=True, regex=True),
-    ]
-
-    LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>\d{8})\.log(?P<line_marker>-|:)(?P<line_no>\d+)(?P=line_marker)(?P<line>.*)", re.M)
+    author_default = '[^>]*'
 
     def __init__(self, log_path):
         self.log_path = log_path
-        self.frozen = False
-        self.params = self.defaults.copy()
-        self.regex_params = self.regex_defaults.copy()
+        self.context = config.SEARCH_CONTEXT
+        self.pool = Pool(config.SEARCH_WORKERS, init_worker)
 
-        self.replacements = self.other_replacements.copy()
-        for replacement in self.defaults:
-            self.replacements.append(Replacement(replacement, required=False, regex=False))
-        for replacement in self.regex_defaults:
-            self.replacements.append(Replacement(replacement, required=False, regex=True))
+    def emit(self, channels, network, query, author=None, date_range=None):
+        if not author:
+            author = self.author_default
 
-    def clear(self):
-        self.__init__(self.log_path)
-
-    def freeze(self):
-        self.frozen = True
-
-    def chaining(f):
-        """Do not worry about what is going on here.
-        """
-        @wraps(f)
-        def wrapper(self, *args, **kwargs):
-            f(self, *args, **kwargs)
-            return self
-        return wrapper
-
-    @chaining
-    def network(self, network):
-        self.network = network
-
-    @chaining
-    def channels(self, channels):
-        #self.channels = ".*({}).*".format("|".join(["{}[_/]".format(ch) for ch in channels]))
-        self.channels = channels
-
-    @chaining
-    def authors(self, authors):
-        self.author = "|".join(authors)
-
-    @chaining
-    def dir(self, directory):
-        self.path = expandvars(expanduser(directory))
-
-    def __getattr__(self, name):
-        if self.frozen:
-            return self.__dict__[name]
+        if date_range:
+            date_begin, date_end = date_range
         else:
-            def simple_builder(value):
-                setattr(self, name, value)
-                return self
-            return simple_builder
+            date_begin, date_end = None, None
 
-    def emit(self):
-        self.freeze()
+        regex = self.regex.format(author=author, query=query)
+        cmd = self.template.format(context=self.context, search=regex)
 
-        regex_params = self.regex_defaults.copy()
-        params = self.defaults.copy()
+        channel_dates = self.log_path.channels_dates(network, channels)
+        channel_paths = self._process_channel_dates(channel_dates, network, date_begin, date_end)
 
-        for replacement in self.replacements:
-            try:
-                val = getattr(self, replacement.name)
+        return channel_paths, cmd
 
-                if replacement.regex:
-                    regex_params[replacement.name] = val
-                else:
-                    params[replacement.name] = val
-            except KeyError as ex:
-                if replacement.required:
-                    raise Exception("Missing required parameters {}".format(ex.args)) from None
+    def run(self, *args, **kwargs):
+        channel_paths, cmd = self.emit(*args, **kwargs)
 
-        params.update(search=self.regex.format(**regex_params))
+        # No-results per worker are still '', so filter them out.
+        output = filter(
+            None,
+            self.pool.map(partial(run_worker, cmd), channel_paths),
+        )
 
-        channel_dates = self.log_path.channels_dates(self.network, self.channels)
-
-        # TODO: Perform date filtering here
-
-        channel_paths = [join(
-            self.log_path.network_to_path(self.network),
-            log['filename'],
-        ) for log in channel_dates]
-
-        self.channel_paths = '\0'.join(channel_paths).encode()
-
-        return self.template.format(**params)
-
-    def run(self):
-        cmd = self.emit()
-
-        proc = Popen(cmd, shell=True, stdout=PIPE, stdin=PIPE)
-        output, _ = proc.communicate(self.channel_paths)
-        output = output.decode('utf-8', errors='ignore').strip()
+        output = '\n--\n'.join(output)
 
         if not output:
             hits = None
@@ -144,51 +78,83 @@ class GrepBuilder:
 
             hits = [list(group) for _, group in groupby(hits, key=lambda hit: hit.date)]
 
-        self.clear()
-
         return hits
 
     @cachetools.lru_cache(maxsize=16384)
     def _process_output(self, output):
         splits = output.split('\n--\n')
-        return [self._process_hit(split.strip()) for split in splits]
 
-    def _process_hit(self, split):
-        lines = split.split('\n')
+        return self.pool.map(_process_hit, splits, chunksize=OUTPUT_PROCESS_CHUNK_SIZE)
 
-        channel, date, begin = None, None, None
-        line_objs = []
+    def _process_channel_dates(self, channel_dates, network, date_begin, date_end):
+        filtered_channel_dates = []
 
-        for line in lines:
-            m = self.LINE_REGEX.search(line)
+        for log in channel_dates:
+            date = datetime.strptime(log['date'], '%Y%m%d').date()
 
-            if not m:
-                if not line_objs:
-                    continue
+            if ((date_begin and date_begin < date) or (not date_begin)) and \
+                ((date_end and date_end >= date) or (not date_end)):
+                filtered_channel_dates.append(log)
 
-                last = line_objs[-1]
-                line_objs[-1] = last._replace(line=last.line + '\n' + line)
+        channel_paths = [join(
+            self.log_path.network_to_path(network),
+            log['filename'],
+        ) for log in filtered_channel_dates]
+
+        channel_paths.sort()
+
+        chunk_size = ceil(len(channel_paths) / config.SEARCH_WORKERS)
+
+        paths_it = iter(channel_paths)
+        chunks = []
+
+        while True:
+            chunk = list(islice(paths_it, chunk_size))
+            if not chunk:
+                break
+            chunks.append(chunk)
+
+        channel_paths = ['\0'.join(chunk).encode() for chunk in chunks]
+
+        return channel_paths
+
+
+def init_worker():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+def run_worker(cmd, paths):
+    proc = Popen(cmd, shell=True, stdout=PIPE, stdin=PIPE)
+    output, _ = proc.communicate(paths)
+    output = output.decode('utf-8', errors='ignore').strip()
+
+    return output
+
+def _process_hit(split):
+    lines = split.strip().split('\n')
+
+    channel, date, begin = None, None, None
+    line_objs = []
+
+    for line in lines:
+        m = LINE_REGEX.search(line)
+
+        if not m:
+            if not line_objs:
                 continue
 
-            line = Line(**m.groupdict())
+            last = line_objs[-1]
+            line_objs[-1] = last._replace(line=last.line + '\n' + line)
+            continue
 
-            # If we have no data, this is the first line.
-            # So set the hit metadata.
-            if not channel:
-                channel = line.channel
-                date = line.date
-                begin = line.line_no
+        line = Line(**m.groupdict())
 
-            line_objs.append(line)
+        # If we have no data, this is the first line.
+        # So set the hit metadata.
+        if not channel:
+            channel = line.channel
+            date = line.date
+            begin = line.line_no
 
-        return Hit(channel, date, begin, line_objs)
+        line_objs.append(line)
 
-
-if __name__ == "__main__":
-    grep = GrepBuilder() \
-        .channels(["CAA-staff"]) \
-        .dir("/home/znc/.znc/users/rizon/moddata/log") \
-        .search("dodko")
-
-    print(grep.emit())
-    grep.run()
+    return Hit(channel, date, begin, line_objs)

@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from flask import Flask
 from flask import abort
 from flask import redirect
@@ -19,9 +21,6 @@ from forms import SearchForm
 from grep import GrepBuilder
 
 app = Flask(__name__)
-
-# lol
-paths = None
 
 @app.route('/')
 def index():
@@ -84,12 +83,12 @@ def search():
     if not valid:
         results = []
     else:
-        grep = GrepBuilder(paths) \
-            .channels([form.channel.data]) \
-            .network(form.network.data) \
-            .search(form.text.data)
+        results = grep.run(
+            channels=[form.channel.data],
+            network=form.network.data,
+            query=form.text.data,
+        )
 
-        results = grep.run()
 
     return render_template('search.html', valid=valid, form=form, network=form.network.data, channel=form.channel.data, results=results)
 
@@ -99,8 +98,10 @@ def not_found(ex):
     return render_template('error/not_found.html'), 404
 
 def create():
-    global paths
+    global paths, grep
+
     paths = getattr(log_path, config.LOG_PATH_CLASS)()
+    grep = GrepBuilder(paths)
 
     util.register_context_processors(app)
     util.register_template_filters(app)
