@@ -8,7 +8,17 @@
 
         <script src="{{ url_for('static', filename='app.js') }}"></script>
 
-        {% block js_init %}{% endblock %}
+        <script type="text/javascript">
+            {% block js_early_init %}{% endblock %}
+
+            $(function() {
+                {% block js_init %}
+                    new Autofilter();
+                    new Highlight();
+                {% endblock %}
+            });
+        </script>
+
 
         <title>
             {% block title %}

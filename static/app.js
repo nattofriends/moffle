@@ -1,23 +1,28 @@
-$(document).ready(function() {
-    new Autofilter();
+/**
+ * Highlight key lines.
+ */
+function Highlight() {
+    this.lines = $(".js-line-no-highlight");
+    this.highlightClass = 'irc-highlight';
 
     if (window.location.pathname !== "/search/") {
+
         /* Maybe highlight anchor text on load (only lines, not #end) */
         var hash = $(location).attr('hash');
+
         if (hash.charAt(1) == "L") {
-            $(hash).parent().addClass("irc-highlight");
+            $(hash).parent().addClass(this.highlightClass);
         }
 
-        /* Yes, I am manually doing this. */
-        $(".js-line-no-highlight").click(function(evt) {
-            console.log(this);
-            /* I am am expert. */
-            $(".js-line-no-highlight").parent().removeClass("irc-highlight");
-            $(evt.target).parent().addClass("irc-highlight");
-        });
+        this.lines.click($.proxy(this.onClick, this));
     }
+};
 
-});
+Highlight.prototype.onClick = function(evt) {
+    this.lines.parent().removeClass(this.highlightClass);
+    $(evt.target).parent().addClass(this.highlightClass);
+};
+
 
 /**
  * Autofilter binds to a input with attribute data-filter-target
