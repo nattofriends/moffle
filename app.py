@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from math import floor
 
 from flask import Flask
 from flask import abort
@@ -17,6 +18,7 @@ import template_context
 import line_format
 import log_path
 
+from forms import AjaxSearchForm
 from forms import SearchForm
 from grep import GrepBuilder
 
@@ -69,7 +71,6 @@ def log(network, channel, date):
 
         return redirect(url_for('log', network=network, channel=channel, date=date))
 
-
 @app.route('/search/')
 def search():
     form = SearchForm(request.args, csrf_enabled=False)
@@ -89,9 +90,60 @@ def search():
             query=form.text.data,
         )
 
-
     return render_template('search.html', valid=valid, form=form, network=form.network.data, channel=form.channel.data, results=results)
 
+@app.route('/search_ajax/')
+def search_ajax():
+    form = SearchForm(request.args, csrf_enabled=False)
+    valid = form.validate()
+
+    if not valid:
+        # TODO: Improve this?
+        abort(404)
+
+    network = form.network.data
+    channel = form.channel.data
+
+    try:
+        dates = paths.channel_dates(network, channel)
+    except exceptions.NoResultsException as ex:
+        abort(404)
+    except exceptions.MultipleResultsException as ex:
+        return render_template('error/multiple_results.html', network=network, channel=channel)
+
+    today = datetime.now().date()
+
+    # We're implicitly depending on a few things here in a fragile fashion...
+    oldest = dates[-1]
+    oldest = datetime.strptime(oldest, '%Y%m%d').date()
+
+    total_interval = today - oldest
+    max_segment = floor(total_interval / timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS))
+
+    return render_template('search_ajax.html', valid=valid, form=form, network=form.network.data, channel=form.channel.data, query=form.text.data, max_segment=max_segment)
+
+@app.route('/search_ajax/chunk')
+def search_ajax_chunk():
+    form = AjaxSearchForm(request.args, csrf_enabled=False)
+    valid = form.validate()
+
+    today = date.today()
+    chunk_size = timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS)
+    date_end = today - chunk_size * form.segment.data
+    date_start = date_end - chunk_size
+
+    # We should have another copy of this to use...
+    if not valid:
+        results = []
+    else:
+        results = grep.run(
+            channels=[form.channel.data],
+            network=form.network.data,
+            query=form.text.data,
+            date_range=[date_start, date_end],
+        )
+
+    return render_template('search_result.html', network=form.network.data, channels=[form.channel.data], results=results)
 
 @app.errorhandler(404)
 def not_found(ex):

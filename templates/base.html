@@ -9,8 +9,6 @@
         <script src="{{ url_for('static', filename='app.js') }}"></script>
 
         <script type="text/javascript">
-            {% block js_early_init %}{% endblock %}
-
             $(function() {
                 {% block js_init %}
                     new Autofilter();

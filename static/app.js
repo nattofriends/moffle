@@ -65,5 +65,42 @@ Autofilter.prototype.bindChange = function(evt) {
             thisObj.hide();
         }
     });
-
 }
+
+function AjaxSearch(network, channels, query, maxSegment) {
+    this.network = network;
+    this.channels = channels;
+    this.query = query;
+    this.maxSegment = maxSegment;
+
+    this.segment = 0;
+
+    this.container = $(".js-results-container");
+    this.message = $(".js-loading-spinner");
+
+    this.setupAjax();
+};
+
+AjaxSearch.prototype.onSuccess = function(html) {
+    this.container.append(html);
+
+    this.segment += 1;
+
+    if (this.segment <= this.maxSegment) {
+        this.setupAjax();
+    } else {
+        this.message.hide();
+    }
+};
+
+AjaxSearch.prototype.setupAjax = function() {
+    $.ajax({
+        url: "/search_ajax/chunk",
+        data: {
+            network: this.network,
+            channel: this.channels,
+            text: this.query,
+            segment: this.segment
+        }
+    }).done($.proxy(this.onSuccess, this));
+};
