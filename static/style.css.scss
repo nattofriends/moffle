@@ -110,6 +110,10 @@ $greentext: #789922;
     /* Required before when not using pagination. Keep in case we need it */
 }
 
+.hidden {
+    display: none;
+}
+
 .irc-highlight {
     background-color: yellow;
 }

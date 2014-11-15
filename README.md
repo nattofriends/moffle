@@ -27,8 +27,5 @@ Moffle, the Proceedings of the Internet Relay Chat Preservation Society
 Bad ideas go here.
 
   * ACL scope expansion (allow channel #x on network y automatically grants allow on network y)
-  * Reuse LogLine results for GrepBuilder (find(1) should not be necessary)
-  * Date-ranged search after ^
-  * AJAX incremental search after ^
   * Multi-channel searches (already supported in existing find(1)-based GrepBuilder, easy in LogLine-based GrepBuilder)
   * Responsive/mobile-friendly interface

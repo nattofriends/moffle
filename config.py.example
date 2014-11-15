@@ -29,6 +29,9 @@ SEARCH_CONTEXT = 4
 # The number of weeks to segment AJAX searches into.
 SEARCH_CHUNK_INTERVAL_WEEKS = 4
 
+# Whether to enable AJAX search.
+SEARCH_AJAX_ENABLED = True
+
 # 4-tuples of allow/deny, oauth email (* = all), scope (network/channel/*),
 # match (regex or *)
 # Rules are considered by their scope, then their action

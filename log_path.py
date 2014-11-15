@@ -2,6 +2,7 @@
 from collections import defaultdict
 from collections import namedtuple
 from datetime import date
+from datetime import datetime
 from operator import itemgetter
 from itertools import chain
 import os
@@ -175,6 +176,9 @@ class LogPath:
 
         file_matches = [LOG_FILENAME_REGEX.match(filename) for filename in files]
         file_matches = [match.groupdict() for match in file_matches if match is not None]
+
+        for match in file_matches:
+            match['date_obj'] = datetime.strptime(match['date'], '%Y%m%d').date()
 
         self._channel_list_stamp[network] = date.today()
         self._channel_list_cache[network] = file_matches

@@ -73,64 +73,48 @@ def log(network, channel, date):
 
 @app.route('/search/')
 def search():
-    form = SearchForm(request.args, csrf_enabled=False)
-
-    # A lot of this access control stuff will probably change once we allow
-    # searches across multiple channels.
-
-    valid = form.validate()
-
-    # We should have another copy of this to use...
-    if not valid:
-        results = []
-    else:
-        results = grep.run(
-            channels=[form.channel.data],
-            network=form.network.data,
-            query=form.text.data,
-        )
-
-    return render_template('search.html', valid=valid, form=form, network=form.network.data, channel=form.channel.data, results=results)
-
-@app.route('/search_ajax/')
-def search_ajax():
+    # TODO: Expose multi-channel search
     form = SearchForm(request.args, csrf_enabled=False)
     valid = form.validate()
-
-    if not valid:
-        # TODO: Improve this?
-        abort(404)
 
     network = form.network.data
     channel = form.channel.data
 
-    try:
-        dates = paths.channel_dates(network, channel)
-    except exceptions.NoResultsException as ex:
-        abort(404)
-    except exceptions.MultipleResultsException as ex:
-        return render_template('error/multiple_results.html', network=network, channel=channel)
+    if config.SEARCH_AJAX_ENABLED:
+        if not valid:
+            # TODO: Improve this?
+            abort(404)
 
-    today = datetime.now().date()
+        try:
+            dates = paths.channels_dates(network, [channel])
+        except exceptions.NoResultsException as ex:
+            abort(404)
+        except exceptions.MultipleResultsException as ex:
+            return render_template('error/multiple_results.html', network=network, channel=channel)
 
-    # We're implicitly depending on a few things here in a fragile fashion...
-    oldest = dates[-1]
-    oldest = datetime.strptime(oldest, '%Y%m%d').date()
+        max_segment = grep.max_segment(dates[-1]['date_obj'])
 
-    total_interval = today - oldest
-    max_segment = floor(total_interval / timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS))
+        return render_template('search_ajax.html', valid=valid, form=form, network=network, channel=channel, query=form.text.data, max_segment=max_segment)
 
-    return render_template('search_ajax.html', valid=valid, form=form, network=form.network.data, channel=form.channel.data, query=form.text.data, max_segment=max_segment)
+    else:
+        # We should have another copy of this to use...
+        if not valid:
+            results = []
+        else:
+            results = grep.run(
+                channels=[channel],
+                network=network,
+                query=form.text.data,
+            )
 
-@app.route('/search_ajax/chunk')
+        return render_template('search.html', valid=valid, form=form, network=network, channel=channel, results=results)
+
+@app.route('/search/chunk')
 def search_ajax_chunk():
     form = AjaxSearchForm(request.args, csrf_enabled=False)
     valid = form.validate()
 
-    today = date.today()
-    chunk_size = timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS)
-    date_end = today - chunk_size * form.segment.data
-    date_start = date_end - chunk_size
+    date_start, date_end = grep.segment_bounds(form.segment.data)
 
     # We should have another copy of this to use...
     if not valid:

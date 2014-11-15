@@ -1,7 +1,9 @@
 """Fast grep or something.
 """
 from collections import namedtuple
+from datetime import date
 from datetime import datetime
+from datetime import timedelta
 from functools import partial
 from itertools import islice
 from itertools import groupby
@@ -134,7 +136,7 @@ class GrepBuilder:
         filtered_channel_dates = []
 
         for log in channel_dates:
-            date = datetime.strptime(log['date'], '%Y%m%d').date()
+            date = log['date_obj']
 
             if ((date_begin and date_begin < date) or (not date_begin)) and \
                 ((date_end and date_end >= date) or (not date_end)):
@@ -168,6 +170,21 @@ class GrepBuilder:
         channel_paths = ['\0'.join(chunk).encode() for chunk in chunks]
 
         return channel_paths
+
+    def max_segment(self, oldest):
+        today = date.today()
+        total_interval = today - oldest
+        max_segment = floor(total_interval / timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS))
+
+        return max_segment
+
+    def segment_bounds(self, segment):
+        today = date.today()
+        chunk_size = timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS)
+        date_end = today - chunk_size * segment
+        date_start = date_end - chunk_size
+
+        return date_start, date_end
 
 
 def init_worker():

@@ -77,6 +77,7 @@ function AjaxSearch(network, channels, query, maxSegment) {
 
     this.container = $(".js-results-container");
     this.message = $(".js-loading-spinner");
+    this.noResults = $(".no-results");
 
     this.setupAjax();
 };
@@ -90,12 +91,16 @@ AjaxSearch.prototype.onSuccess = function(html) {
         this.setupAjax();
     } else {
         this.message.hide();
+ 
+        if (this.container.children().length == 0) {
+            this.noResults.removeClass("hidden");
+        }
     }
 };
 
 AjaxSearch.prototype.setupAjax = function() {
     $.ajax({
-        url: "/search_ajax/chunk",
+        url: "/search/chunk",
         data: {
             network: this.network,
             channel: this.channels,
