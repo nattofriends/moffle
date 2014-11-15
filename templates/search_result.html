@@ -1,0 +1,19 @@
+{% if results %}
+    {% for result_group in results %}
+        <h5 class="search-result-header">
+            <a href="{{ url_for('log', network=network, channel=result_group[0].channel, date=result_group[0].date) }}">
+                <span>
+                    <span class="glyphicon glyphicon-list"></span> {{ result_group[0].channel }}
+                </span>
+
+                <span>
+                    <span class="glyphicon glyphicon-calendar"></span> {{ result_group[0].date }}
+                </span>
+            </a>
+        </h5>
+
+        <pre class="search-result-text log-entry">{% for result in result_group %}
+{% for line in result.lines %}{{ line.line | urlize | e | control_codes | line_style(line.line_no, is_search=True, network=network, ctx=line) | safe }}<br>{% endfor %}<span class="ellipsis">[...]</span>{% endfor %}
+</pre>
+    {% endfor %}
+{% endif %}

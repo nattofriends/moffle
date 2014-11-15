@@ -7,10 +7,58 @@ $part: #66361F;
 $join: green;
 $greentext: #789922;
 
-.navbar-header .breadcrumb {
+$mobileform-border: #e7e7e7;
+
+pre {
+    @media (max-width: $screen-xs-max) {
+        font-size: 12px;
+        padding: 4px;
+    }
+
+    /* Firefox, not Chrome */
+    white-space: normal;
+}
+
+.seconds {
+    @media (max-width: $screen-xs-max) {
+        @media (max-aspect-ratio: 4/3) {
+            display: none;
+        }
+    }
+}
+
+/* Navbar deserves to have a nice corner everywhere. */
+.navbar {
+    border-radius: 4px;
+}
+
+/* This really shouldn't be necessary */
+.navbar-mobile-margin {
+    @media (max-width: $screen-xs-max) {
+        padding-left: 15px;
+    }
+}
+
+.breadcrumb {
     background-color: inherit;
     padding: 0;
+    margin-left: 0; /* Some nonsense by navbar-nav */
     margin-bottom: 0; /* 15px by .navbar-text */
+
+    li a {
+        padding: 0;
+        /* .navbar-default .navbar-nav > li > a is defeating us here. */
+        background-color: inherit !important;
+        color: $brand-primary !important;
+        display: inline;
+    }
+
+    /* Don't ask. Just don't. */
+    @media (max-width: $screen-xs-max) {
+        padding: 7.5px 15px 20px 15px;
+        margin-left: -15px;
+        border-bottom: 1px solid $mobileform-border;
+    }
 }
 
 .container {
@@ -43,13 +91,26 @@ $greentext: #789922;
 /* Channel and date view */
 
 .title-search-form {
-    /* I don't know. */
-    margin-left: 15px;
-    width: 174px;
+    @media (min-width: $screen-sm-min) {
+        /* Guessed these values out from somewhere. */
+        margin-left: 15px;
+        width: 174px;
+    }
+    @media (max-width: $screen-xs-max) {
+        float: none !important;
+        margin-top: 9px; /* symmetry with .page-header */
+        width: 100%;
+        margin-bottom: 2px;
+    }
 }
 
-.page-header .property {
+.page-header {
+    @media (max-width: $screen-xs-max) {
+        margin-top: 0;
+    }
+}
 
+.property {
     margin-right: 15px;
 
     &:last-of-type {
@@ -58,6 +119,12 @@ $greentext: #789922;
 
     .glyphicon {
         font-size: 24px;
+    }
+
+    @media (max-width: $screen-xs-max) {
+        font-size: 24px;
+        margin-bottom: 9px;
+        display: block;
     }
 }
 
@@ -94,14 +161,48 @@ $greentext: #789922;
     position: relative;
 
     .actions {
-        font-size: $font-size-base;
-        font-weight: normal;
-        position: absolute;
-        right: 0;
-        bottom: 9px; /* .page-header's own padding-bottom */
+        @media (min-width: $screen-sm-min) {
+            position: absolute;
+            right: 0;
+            bottom: 9px; /* .page-header's own padding-bottom */
+        }
+    }
+}
 
-        .pagination {
-            margin: 0;
+.actions {
+    font-size: $font-size-base;
+    font-weight: normal;
+
+    @media (max-width: $screen-xs-max) {
+        float: none !important;
+        margin-top: 9px; /* symmetry with .page-header */
+    }
+}
+
+.pagination {
+    margin: 0;
+
+    @media (max-width: $screen-xs-max) {
+        width: 100%;
+
+        li {
+            text-align: center;
+
+            &:first-of-type {
+                text-align: left;
+            }
+
+            &:last-of-type {
+                text-align: right;
+            }
+        }
+    }
+}
+
+@for $i from 1 to 5 {
+    .pagination-items-#{$i} li a {
+        @media (max-width: $screen-xs-max) {
+            width: 100% / $i;
         }
     }
 }

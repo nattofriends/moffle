@@ -26,12 +26,12 @@
 
         <div class="actions pull-right">
             <nav>
-                <ul class="pagination">
+                <ul class="pagination pagination-items-{{ pagination_control }}">
                     {% if log.before %}
                         <li>
                             <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>
                         </li>
-                        {% endif %}
+                    {% endif %}
 
                     <li>
                         <a href="#end">Bottom</a>
@@ -53,9 +53,9 @@
 
     <a id="end"></a>
 
-    <div class="bottom-actions pull-right">
+    <div class="actions pull-right">
         <nav>
-            <ul class="pagination">
+            <ul class="pagination pagination-items-{{ pagination_control }}">
                 {% if log.before %}
                     <li>
                         <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>

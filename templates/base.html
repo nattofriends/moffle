@@ -5,6 +5,7 @@
 
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <script src="{{ url_for('static', filename='vendor/jquery/dist/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='vendor/bootstrap-sass-official/assets/javascripts/bootstrap.js') }}"></script>
 
         <script src="{{ url_for('static', filename='app.js') }}"></script>
 
@@ -24,6 +25,9 @@
             {% endblock %}
         </title>
 
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+
         {% endblock %}
     </head>
 
@@ -33,25 +37,29 @@
             <nav class="navbar navbar-default" role="navigation">
                 <div class="container-fluid">
                     <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
                         <a class="navbar-brand" href="{{ url_for('index') }}">{{ brand }}</a>
 
                     </div>
 
-                    <div class="navbar-header">
-                        <ol class="breadcrumb navbar-text">
+                    <!-- No, don't ask me why this means I need to contain the damn thing in .navbar-collapse. -->
+                    <div class="collapse navbar-collapse">
+                        <ol class="nav navbar-nav navbar-text navbar-mobile-margin breadcrumb">
                             {% block breadcrumb %}{% endblock %}
                         </ol>
-                    </div>
 
-                    <!-- No, don't ask me why this means I need to contain the damn thing in .navbar-collapse. -->
-                    <div class="navbar-collapse">
-                        <ul class="nav navbar-nav navbar-right">
+                        <ul class="nav navbar-nav navbar-right navbar-mobile-margin">
 
                             <li>
                                 <p class="navbar-text">
                                     {% if session_user %}
                                         Hi {{ session_user.given_name }}
-                                        (<a href="{{ url_for('auth.logout') }}">Logout</a>)
+                                        (<a href="{{ url_for('auth.logout') }}">Log out</a>)
                                     {% else %}
                                         <a href="{{ url_for('auth.login', next=get_encoded_path(request.url)) }}">Log in</a>
                                     {% endif %}

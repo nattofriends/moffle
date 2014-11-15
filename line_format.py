@@ -184,6 +184,11 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
         href = '#L{}'.format(line_no)
         id_ = 'L{}'.format(line_no)
 
+    # Do we have to resort to this?
+    h, m, s = timestamp.strip("[]").split(":")
+
+    timestamp = "[{h}:{m}<span class='seconds'>:{s}</span>]".format(h=h, m=m, s=s)
+
     return '<span class="{line_class}">' \
         '<a href="{href}" id="{id_}" class="js-line-no-highlight">{timestamp}</a> ' \
         '<span class="{msg_user_class}">{maybe_user} ' \

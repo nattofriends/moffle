@@ -56,7 +56,10 @@ def channel(network, channel):
 def log(network, channel, date):
     try:
         log = paths.log(network, channel, date)
-        return render_template('log.html', network=network, channel=channel, date=date, log=log)
+
+        pagination_control = 1 + sum(bool(maybe) for maybe in (log.before, log.after))
+
+        return render_template('log.html', network=network, channel=channel, date=date, pagination_control=pagination_control, log=log)
     except exceptions.NoResultsException as ex:
         abort(404)
     except exceptions.MultipleResultsException as ex:
