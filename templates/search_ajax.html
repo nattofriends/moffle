@@ -18,8 +18,6 @@
     <li class="active"><a href="{{ encoded_path }}">{{ format_search_title(form.text.data) }}</a></li>
 {% endblock %}
 
-{% block search_inline %}{% if form.text.data %}{{ form.text.data }}{% endif %}{% endblock %}
-
 {% block js_init %}
     {{ super() }}
     new AjaxSearch("{{ network }}", "{{ channel }}", "{{ query }}", {{ max_segment }});
@@ -36,17 +34,29 @@
             {% endif %}
         </span>
         
-        {% if form.network.data %}
+        {% if network %}
             <span class="property">
                 <span class="glyphicon glyphicon-globe"></span> {{ network }}
             </span>
         {% endif %}
 
-        {% if form.channel.data %}
+        {% if channel %}
             <span class="property">
                 <span class="glyphicon glyphicon-list"></span> {{ channel }}
             </span>
         {% endif %}
+        
+        <form class="title-search-form small pull-right" role="search" action="/search">
+            <input type="hidden" name="network" value="{{ network }}">
+            <input type="hidden" name="channel" value="{{ channel }}">
+
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-search"></span>
+                </span>
+                <input type="text" name="text" class="form-control" placeholder="text search" value="{% if form.text.data %}{{ form.text.data }}{% endif %}">
+            </div>
+        </form>
     </h1>
 
     {% if not valid %}
