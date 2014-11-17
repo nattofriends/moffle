@@ -8,23 +8,31 @@
     <li class="active"><a href="{{ url_for('network', network=network) }}">{{ network }}</a></li>
 {% endblock %}
 
+{% block js_init %}
+    {{ super() }}
+    new PrivateMessages();
+{% endblock %}
+
 {% block content %}
     <h1 class="page-header clearfix">
         <span class="property">
             <span class="glyphicon glyphicon-globe"></span> {{ network }}
         </span>
 
-        <form class="title-search-form small pull-right" role="search">
-            <div class="input-group">
-                <span class="input-group-addon">#</span>
-                <input type="text" class="form-control" placeholder="channel/pm filter" data-filter-target=".js-channels">
+        <form class="header-search form-inline pull-right" role="search">
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">#</span>
+                    <input type="text" class="form-control" placeholder="channel/pm filter" data-filter-target=".js-channels">
+                </div>
             </div>
         </form>
     </h1>
 
     <div class="js-channels">
         {% for channel in channels %}
-            <a class="network btn btn-primary" href="{{ url_for('channel', network=network, channel=channel) }}" data-filter-value="{{ channel }}">{{ channel }}</a>
+            <a class="network btn btn-primary js-pm-hide" href="{{ url_for('channel', network=network, channel=channel) }}" data-filter-value="{{ channel }}">{{ channel }}</a>
         {% endfor %}
+        <a class="network btn btn-default hidden js-pm-action" href="#">private messages &raquo;</a>
     </div>
 {% endblock %}

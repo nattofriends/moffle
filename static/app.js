@@ -120,3 +120,31 @@ function MobileBreadcrumb() {
         $(".breadcrumb").hide();
     }
 }
+
+function PrivateMessages() {
+    this.pm = $(".js-pm-hide").not("[data-filter-value^='#']");
+    this.pmButton = $(".js-pm-action");
+
+    if (this.pm.length > 0) {
+        this.pm.addClass("hidden");
+        this.pmButton.removeClass("hidden");
+        this.pmButton.click($.proxy(this.onClick, this));
+        this.hidden = true;
+    }
+
+}
+
+PrivateMessages.prototype.onClick = function (evt) {
+    if (this.hidden === true) {
+        this.hidden = false;
+        this.pm.removeClass("hidden");
+        this.pmButton.html("&laquo; private messages");
+    } else {
+        this.hidden = true;
+        this.pm.addClass("hidden");
+        this.pmButton.html("private messages &raquo;");
+    }
+
+    evt.preventDefault();
+    evt.stopPropagation();
+};

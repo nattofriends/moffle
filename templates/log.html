@@ -24,26 +24,40 @@
             <span class="glyphicon glyphicon-calendar"></span> {{ date }}
         </span>
 
-        <div class="actions pull-right">
-            <nav>
-                <ul class="pagination pagination-items-{{ pagination_control }}">
-                    {% if log.before %}
-                        <li>
-                            <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>
-                        </li>
-                    {% endif %}
+        <div class="actions">
+            <form class="header-search form-inline" role="search" action="/search">
+                <div class="form-group">
+                    <input type="hidden" name="network" value="{{ network }}">
+                    <input type="hidden" name="channel" value="{{ channel }}">
 
-                    <li>
-                        <a href="#end">Bottom</a>
-                    </li>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </span>
+                        <input type="text" name="text" class="form-control" placeholder="search {{ channel }}">
+                    </div>
+                </div>
 
-                    {% if log.after %}
+                <div class="form-group">
+                    <ul class="pagination pagination-items-{{ pagination_control }}">
+                        {% if log.before %}
+                            <li>
+                                <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>
+                            </li>
+                        {% endif %}
+
                         <li>
-                            <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">Newer &rarr;</a>
+                            <a href="#end">Bottom</a>
                         </li>
-                    {% endif %}
-                </ul>
-            </nav>
+
+                        {% if log.after %}
+                            <li>
+                                <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">Newer &rarr;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </form>
         </div>
     </h1>
 

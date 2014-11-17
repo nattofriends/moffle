@@ -46,9 +46,8 @@ pre {
     margin-bottom: 0; /* 15px by .navbar-text */
 
     li {
-        + li:before {
-            content: "#{$breadcrumb-separator}";
-        }
+        /* This is not the usual .navbar-nav li, so don't apply the usual styling. */
+        float: none;
         
         a {
             padding: 0;
@@ -96,23 +95,36 @@ pre {
 
 /* Channel and date view */
 
-.title-search-form {
+.header-search {
     @media (min-width: $screen-sm-min) {
         /* Guessed these values out from somewhere. */
         margin-left: 15px;
-        width: 174px;
     }
+
     @media (max-width: $screen-xs-max) {
         float: none !important;
         margin-top: 9px; /* symmetry with .page-header */
         width: 100%;
-        margin-bottom: 2px;
     }
-}
 
-.page-header {
-    @media (max-width: $screen-xs-max) {
-        margin-top: 0;
+    .form-group {
+        margin-bottom: 0;
+
+        @media (max-width: $screen-xs-max) {
+            margin-top: 9px;
+            margin-bottom: 9px;
+        }
+        
+        /* Setting this as middle does all sorts of weird things. */
+        .input-group {
+            vertical-align: baseline;
+        }
+
+        .pagination {
+            @media (min-width: $screen-sm-min) {
+                margin-left: 15px;
+            }
+        }
     }
 }
 
@@ -166,11 +178,18 @@ pre {
 .page-header {
     position: relative;
 
+    @media (max-width: $screen-xs-max) {
+        margin-top: 0;
+        margin-bottom: 10px;
+        padding-bottom: 0;
+    }
+
     .actions {
         @media (min-width: $screen-sm-min) {
             position: absolute;
             right: 0;
-            bottom: 9px; /* .page-header's own padding-bottom */
+            /* The following calue is empirical and subject to experimentation... */
+            bottom: 10px;
         }
     }
 }
@@ -211,10 +230,6 @@ pre {
             width: 100% / $i;
         }
     }
-}
-
-.bottom-actions {
-    /* Required before when not using pagination. Keep in case we need it */
 }
 
 .hidden {

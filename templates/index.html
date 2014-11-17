@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
+{% block js_init %}
+    {{ super() }}
+    new MobileBreadcrumb();
+{% endblock %}
+
 {% block content %}
     <div class="jumbotron">
         <p>{{ brand | capitalize }}, the Proceedings of the</p>

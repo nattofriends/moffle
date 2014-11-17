@@ -19,24 +19,28 @@
             <span class="glyphicon glyphicon-list"></span> {{ channel }}
         </span>
 
-        <form class="title-search-form small pull-right" role="search">
-            <div class="input-group">
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-                <input type="text" class="form-control" placeholder="date filter" data-filter-target=".js-dates">
+        <form class="header-search form-inline pull-right" role="search">
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                    <input type="text" class="form-control" placeholder="filter dates" data-filter-target=".js-dates">
+                </div>
             </div>
         </form>
 
-        <form class="title-search-form small pull-right" role="search" action="/search">
+        <form class="header-search form-inline pull-right" role="search" action="/search">
             <input type="hidden" name="network" value="{{ network }}">
             <input type="hidden" name="channel" value="{{ channel }}">
 
-            <div class="input-group">
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-search"></span>
-                </span>
-                <input type="text" name="text" class="form-control" placeholder="text search">
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </span>
+                    <input type="text" name="text" class="form-control" placeholder="search {{ channel }}">
+                </div>
             </div>
         </form>
     </h1>

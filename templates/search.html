@@ -41,15 +41,17 @@
             </span>
         {% endif %}
 
-        <form class="title-search-form small pull-right" role="search" action="/search">
+        <form class="header-search form-inline pull-right" role="search" action="/search">
             <input type="hidden" name="network" value="{{ network }}">
             <input type="hidden" name="channel" value="{{ channel }}">
 
-            <div class="input-group">
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-search"></span>
-                </span>
-                <input type="text" name="text" class="form-control" placeholder="text search" value="{% if form.text.data %}{{ form.text.data }}{% endif %}">
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </span>
+                    <input type="text" name="text" class="form-control" placeholder="text search" value="{% if form.text.data %}{{ form.text.data }}{% endif %}">
+                </div>
             </div>
         </form>
     </h1>
