@@ -16,7 +16,7 @@ function Highlight() {
 
         this.lines.click($.proxy(this.onClick, this));
     }
-};
+}
 
 Highlight.prototype.onClick = function(evt) {
     this.lines.parent().removeClass(this.highlightClass);
@@ -36,7 +36,7 @@ function Autofilter() {
 
     this.bind.bind('input', $.proxy(this.bindChange, this));
     form.submit($.proxy(this.doNothing, this));
-};
+}
 
 Autofilter.prototype.doNothing = function(evt) {
     evt.preventDefault();
@@ -80,7 +80,7 @@ function AjaxSearch(network, channels, query, maxSegment) {
     this.noResults = $(".no-results");
 
     this.setupAjax();
-};
+}
 
 AjaxSearch.prototype.onSuccess = function(html) {
     this.container.append(html);
@@ -109,3 +109,14 @@ AjaxSearch.prototype.setupAjax = function() {
         }
     }).done($.proxy(this.onSuccess, this));
 };
+
+/**
+ * Hide the entire breadcrumb container when there are
+ * no breadcrumbs (i.e. the front page) on mobile
+ */
+function MobileBreadcrumb() {
+    // Yes, I know this is a bad thing to put in a hardcoded string
+    if (window.matchMedia("(max-width: 767px)").matches && $(".breadcrumb").children().length == 0) {
+        $(".breadcrumb").hide();
+    }
+}
