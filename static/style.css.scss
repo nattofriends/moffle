@@ -45,12 +45,18 @@ pre {
     margin-left: 0; /* Some nonsense by navbar-nav */
     margin-bottom: 0; /* 15px by .navbar-text */
 
-    li a {
-        padding: 0;
-        /* .navbar-default .navbar-nav > li > a is defeating us here. */
-        background-color: inherit !important;
-        color: $brand-primary !important;
-        display: inline;
+    li {
+        + li:before {
+            content: "#{$breadcrumb-separator}";
+        }
+        
+        a {
+            padding: 0;
+            /* .navbar-default .navbar-nav > li > a is defeating us here. */
+            background-color: inherit !important;
+            color: $brand-primary !important;
+            display: inline;
+        }
     }
 
     /* Don't ask. Just don't. */
