@@ -5,12 +5,14 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from functools import partial
+from html import unescape
 from itertools import islice
 from itertools import groupby
 from math import ceil
 from math import floor
 from multiprocessing import Pool
 from os.path import join
+from shlex import quote
 from statistics import mean
 from statistics import StatisticsError
 from subprocess import Popen
@@ -35,8 +37,8 @@ LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>\d{8})\.log(?P<line_mar
 OUTPUT_PROCESS_CHUNK_SIZE = 32
 
 class GrepBuilder:
-    template = """LC_ALL=C xargs -0 grep -in -C {context} '{search}'"""
-    regex = "<{author}> .*{query}.*"
+    template = """LC_ALL=C xargs -0 grep -in -C {context} {search}"""
+    regex = "'<{author}> .*'{query}'.*'"
 
     author_default = '[^>]*'
 
@@ -54,6 +56,8 @@ class GrepBuilder:
         else:
             date_begin, date_end = None, None
 
+        query = quote(unescape(query))
+
         regex = self.regex.format(author=author, query=query)
         cmd = self.template.format(context=self.context, search=regex)
 
@@ -70,10 +74,6 @@ class GrepBuilder:
             None,
             self.pool.map(partial(run_worker, cmd), channel_paths),
         )
-
-        output = list(output)
-        output2 = output
-
 
         output = '\n--\n'.join(output)
 
