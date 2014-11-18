@@ -1,7 +1,11 @@
+from html import escape
+import itertools
 import re
 
 import cachetools
+import jinja2.utils
 from flask import url_for
+from jinja2 import Markup
 
 import util
 
@@ -14,7 +18,16 @@ CTRL_REGEX = re.compile(r'(?:[%s%s%s])|(%s(?:\d{1,2})?,?(?:\d{1,2})?)' % (
     CTRL_RESET,
     CTRL_UNDERLINE,
     CTRL_BOLD,
-    CTRL_COLOR))
+    CTRL_COLOR
+))
+
+# Support urlization of urls with control codes immediately following
+jinja2.utils._punctuation_re = re.compile(
+    '^(?P<lead>(?:%s)*)(?P<middle>.*?)(?P<trail>(?:%s)*)$' % (
+        '|'.join(map(re.escape, ('(', '<', '&lt;'))),
+        '|'.join(map(re.escape, ('.', ',', ')', '>', '\n', '&gt;', CTRL_COLOR, CTRL_RESET, CTRL_BOLD, CTRL_COLOR)))
+    )
+)
 
 
 def ctrl_to_colors(text):
@@ -77,6 +90,32 @@ def generate_span(state):
     if state.bg_color is not None and state.fg_color < 16:
         classes.append("irc-bg-%s" % state.bg_color)
     return "<span class=\"%s\">" % ' '.join(classes)
+
+
+@util.delay_template_filter('hostmask_tooltip')
+@cachetools.lru_cache(maxsize=16384)
+def hostmask_tooltip(s):
+    """Remove join/part tooltips before urlize can get to them.
+    """
+    timestamp, maybe_user, rest = s.split(' ', 2)
+
+    # I am a bad person.
+    def replace_interleave(m):
+        spaces = itertools.repeat('&#8203;')
+        user, email = m.groups()
+        return '<span class="movement-tooltip" data-toggle="tooltip" data-placement="top" title="{email}">{user}</span>'.format(
+            user=user,
+            email=''.join(itertools.chain.from_iterable(zip(email, spaces))),
+        )
+
+    if any(_lenient_prefix(rest, prefix) for prefix in ('Quits', 'Parts', 'Joins')):
+        rest = re.sub(
+            r'([^ ]+) \(([^)]+?)\)',
+            replace_interleave,
+            rest,
+        )
+
+    return Markup(' ').join((timestamp, maybe_user, Markup(rest)))
 
 
 # Don't ask me why the filter name is different from the function name.
@@ -161,6 +200,9 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
         classes.append("irc-highlight")
 
     if _lenient_prefix(rest, "Quits"):
+        msg_user_classes.append("irc-part")
+
+    if _lenient_prefix(rest, "Parts"):
         msg_user_classes.append("irc-part")
 
     if _lenient_prefix(rest, "Joins"):

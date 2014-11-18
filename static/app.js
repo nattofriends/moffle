@@ -85,6 +85,9 @@ function AjaxSearch(network, channels, query, maxSegment) {
 AjaxSearch.prototype.onSuccess = function(html) {
     this.container.append(html);
 
+    /* Kind of inefficient, eh? */
+    new MovementTooltip();
+
     this.segment += 1;
 
     if (this.segment <= this.maxSegment) {
@@ -119,6 +122,10 @@ function MobileBreadcrumb() {
     if (window.matchMedia("(max-width: 767px)").matches && $(".breadcrumb").children().length == 0) {
         $(".breadcrumb").hide();
     }
+}
+
+function MovementTooltip() {
+    $('[data-toggle="tooltip"]').tooltip();
 }
 
 function PrivateMessages() {

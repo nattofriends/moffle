@@ -21,6 +21,7 @@
 {% block js_init %}
     {{ super() }}
     new AjaxSearch("{{ network }}", "{{ channel }}", "{{ query }}", {{ max_segment }});
+    new MovementTooltip();
 {% endblock %}
 
 {% block content %}

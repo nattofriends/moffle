@@ -10,6 +10,11 @@
     <li class="active"><a href="{{ url_for('log', network=network, channel=channel, date=date) }}">{{ date }}</a></li>
 {% endblock %}
 
+{% block js_init %}
+    {{ super() }}
+    new MovementTooltip();
+{% endblock %}
+
 {% block content %}
     <h1 class="page-header">
         <span class="property">
@@ -62,7 +67,7 @@
     </h1>
 
     <pre class="log-entry">
-{% for line_no, line in log.log %}<span>{{ line | urlize | e | control_codes | line_style(line_no, is_search=False) | safe }}</span><br>{% endfor %}
+{% for line_no, line in log.log %}<span>{{ line | hostmask_tooltip | urlize(nofollow=True) | control_codes | line_style(line_no, is_search=False) | safe }}</span><br>{% endfor %}
 </pre>
 
     <a id="end"></a>
