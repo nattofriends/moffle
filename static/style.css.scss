@@ -96,6 +96,8 @@ pre {
 /* Channel and date view */
 
 .header-search {
+    font-weight: normal;
+
     @media (min-width: $screen-sm-min) {
         /* Guessed these values out from somewhere. */
         margin-left: 15px;
@@ -196,7 +198,6 @@ pre {
 
 .actions {
     font-size: $font-size-base;
-    font-weight: normal;
 
     @media (max-width: $screen-xs-max) {
         float: none !important;
