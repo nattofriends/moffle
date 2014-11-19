@@ -4,4 +4,5 @@ Flask-OAuthlib
 Flask-WTF
 natsort
 pyScss
+pytest
 uWSGI
