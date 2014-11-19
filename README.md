@@ -28,3 +28,4 @@ Bad ideas go here.
 
   * ACL scope expansion (allow channel #x on network y automatically grants allow on network y)
   * Multi-channel searches (already supported in existing find(1)-based GrepBuilder, easy in LogLine-based GrepBuilder)
+  * Add i18n support
