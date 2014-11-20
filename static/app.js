@@ -172,3 +172,15 @@ function LocaleOverride() {
         }
     });
 }
+
+/**
+ * Append hash to login URL.
+ */
+function LoginUrl() {
+    console.log("hi");
+    console.log(window.location.hash);
+    $(".js-login-url").attr(
+        'href',
+        $(".js-login-url").attr('href') + encodeURIComponent(window.location.hash)
+    );
+}

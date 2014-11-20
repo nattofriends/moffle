@@ -15,6 +15,7 @@
                     new Autofilter();
                     new Highlight();
                     new LocaleOverride();
+                    new LoginUrl();
                 {% endblock %}
             });
         </script>
@@ -62,7 +63,7 @@
                                         {{ _('Hi %(name)s', name=session_user.given_name) }}
                                         (<a href="{{ url_for('auth.logout') }}">{{ _('Log out') }}</a>)
                                     {% else %}
-                                        <a href="{{ url_for('auth.login', next=get_encoded_path(request.url)) }}">{{ _('Log in') }}</a>
+                                        <a class="js-login-url" href="{{ url_for('auth.login', next=get_encoded_path(request.url)) }}">{{ _('Log in') }}</a>
                                     {% endif %}
                                 </p>
                             </li>

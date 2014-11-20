@@ -11,6 +11,7 @@ import util
 def get_encoded_path():
     """Get the URL-encoded path part of the input ``url``."""
     def inner(url):
+        print(url)
         # '#' is an especially problematic character, since we want
         # the unquoted string to be '%23', not '#'
         path = url.split('/', 3)[-1].replace('#', '%23')
