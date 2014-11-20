@@ -7,13 +7,13 @@
 
 {% block content %}
     <div class="jumbotron">
-        <p>{{ brand | capitalize }}, the Proceedings of the</p>
-        <h2>Internet Relay Chat Preservation Society</h2>
+        <p>{{ _('%(brand)s, the Proceedings of the', brand=brand|capitalize) }}</p>
+        <h2>{{ _('Internet Relay Chat Preservation Society') }}</h2>
 
         <div class="networks-container">
             <form class="network-search-form" role="search">
                 <div class="form-group">
-                    <input type="text" class="form-control input-lg" placeholder="network" data-filter-target=".networks">
+                    <input type="text" class="form-control input-lg" placeholder="{{ _('network') }}" data-filter-target=".networks">
                 </div>
             </form>
 

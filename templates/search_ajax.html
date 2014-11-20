@@ -31,7 +31,7 @@
             {% if form.text.data %}
                 {{ form.text.data }}
             {% else %}
-                Search
+                {{ _('Search') }}
             {% endif %}
         </span>
         
@@ -56,7 +56,7 @@
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-search"></span>
                     </span>
-                    <input type="text" name="text" class="form-control" placeholder="text search" value="{% if form.text.data %}{{ form.text.data }}{% endif %}">
+                    <input type="text" name="text" class="form-control" placeholder="{{ _('text search') }}" value="{% if form.text.data %}{{ form.text.data }}{% endif %}">
                 </div>
             </div>
         </form>
@@ -66,10 +66,10 @@
         <div class="alert alert-warning" role="alert">
             <!-- By rights, this should not belong here. -->
             {% if not network %}
-                No network scope was provided. For performance reasons, searches need to occur to occur in a network scope.
+                {{ _('No network scope was provided. For performance reasons, searches need to occur to occur in a network scope.') }}
                 <a href="{{ url_for('index') }}">Choose a network</a> and try again?
             {% else %}
-                You didn't provide any search terms. Try again?
+                {{ _('You didn\'t provide any search terms. Try again?') }}
             {% endif %}
         </div>
     {% endif %}
@@ -77,12 +77,12 @@
     <div class="js-results-container"></div>
 
     <div class="loading-spinner js-loading-spinner alert alert-info" role="alert">
-        Loading...
+        {{ _('Loading...') }}
     </div>
 
     <div class="alert alert-warning no-results hidden" role="alert">
         <!-- By rights, this should not belong here. -->
-        Sorry, there were no search results.
+        {{ _('Sorry, there were no search results.') }}
     </div>
 
 {% endblock %}

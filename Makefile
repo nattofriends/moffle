@@ -6,24 +6,27 @@ include Makefile.appconfig
 
 APP_MODULE = "app:create()"
 PIDFILE = app.pid
-VENV_NAME = python
+VENV3_NAME = python3
+VENV2_NAME = python2
 UWSGI_LOG = uwsgi.log
 
 # None of your business
 
 BASEDIR = $(shell readlink -f .)
 PIDPATH = $(BASEDIR)/$(PIDFILE)
-VENV = $(BASEDIR)/$(VENV_NAME)
-BIN = $(VENV)/bin/uwsgi
+VENV3 = $(BASEDIR)/$(VENV3_NAME)
+BIN = $(VENV3)/bin/uwsgi
 
-.PHONY: tests
+RM = rm -f
+
+.PHONY: clean tests translations-rescan translations-update translations-compile
 
 start: css ensure-stopped
 	$(BIN) \
 		--daemonize $(UWSGI_LOG) \
 		--pidfile $(PIDFILE) \
 		--http-socket $(BIND) \
-		-H $(VENV) \
+		-H $(VENV3) \
 		-w $(APP_MODULE)
 
 stop:
@@ -41,15 +44,39 @@ ensure-stopped:
 restart: stop start
 
 clean:
-	rm static/style.css
+	$(RM) static/style.css
+	$(RM) messages.pot
+	$(RM) *.stamp
 
 css: static/style.css
 
 static/style.css: static/style.css.scss
-	$(VENV)/bin/pyscss < static/style.css.scss > static/style.css
+	$(VENV3)/bin/pyscss < static/style.css.scss > static/style.css
 
 init-env:
 	ln -s ../bower_components static/vendor
+
+init-pythons:
+	virtualenv --python=python3 --no-site-packages $(VENV3_NAME)
+	$(VENV3)/bin/pip install -r requirements-3.txt
+	virtualenv --python=python2 --no-site-packages $(VENV2_NAME)
+	$(BASEDIR)/$(VENV2_NAME)/bin/pip install -r requirements-2.txt
+
+translations-rescan: 
+	# ``Force rescan''.
+	$(RM) messages.pot
+	$(MAKE) messages.pot
+
+messages.pot:
+	$(VENV3)/bin/pybabel extract -F babel.cfg -o messages.pot .
+
+translations-update: translations-update.stamp
+translations-update.stamp: messages.pot
+	$(BASEDIR)/$(VENV2_NAME)/bin/pybabel update -i messages.pot -d translations
+	touch $@
+
+translations-compile: translations-update.stamp
+	$(VENV3)/bin/pybabel compile -d translations
 
 tests:
 	PYTHONPATH=. $(VENV)/bin/py.test -vvv tests

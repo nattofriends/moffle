@@ -1,12 +1,16 @@
 bower_components/
 static/vendor
-python/
+python2/
+python3/
 
+messages.pot
 static/style.css
 
 *.pyc
 *.swp
 *.swo
+*.stamp
+*.mo
 
 config.py
 Makefile.appconfig

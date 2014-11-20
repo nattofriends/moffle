@@ -25,7 +25,7 @@
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
-                    <input type="text" class="form-control" placeholder="filter dates" data-filter-target=".js-dates">
+                    <input type="text" class="form-control" placeholder="{{ _('filter dates') }}" data-filter-target=".js-dates">
                 </div>
             </div>
         </form>
@@ -39,7 +39,7 @@
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-search"></span>
                     </span>
-                    <input type="text" name="text" class="form-control" placeholder="search {{ channel }}">
+                    <input type="text" name="text" class="form-control" placeholder="{{ _('search %(channel)s', channel=channel) }}">
                 </div>
             </div>
         </form>

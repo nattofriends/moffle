@@ -7,6 +7,7 @@ from flask import redirect
 from flask import request
 from flask import render_template
 from flask import url_for
+from flask.ext.babel import Babel
 from werkzeug.contrib.fixers import ProxyFix
 
 import config
@@ -23,6 +24,7 @@ from forms import SearchForm
 from grep import GrepBuilder
 
 app = Flask(__name__)
+babel = Babel(app)
 
 @app.route('/')
 def index():
@@ -135,6 +137,10 @@ def search_ajax_chunk():
 @app.errorhandler(404)
 def not_found(ex):
     return render_template('error/not_found.html'), 404
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(config.LOCALE_PREFER)
 
 def create():
     global paths, grep

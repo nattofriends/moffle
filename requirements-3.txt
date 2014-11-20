@@ -1,5 +1,6 @@
 cachetools
 Flask
+Flask-Babel
 Flask-OAuthlib
 Flask-WTF
 natsort

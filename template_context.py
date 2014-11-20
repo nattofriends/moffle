@@ -2,6 +2,7 @@ from urllib.parse import quote
 
 from flask import request
 from flask import session
+from flask.ext.babel import gettext as _
 
 import config
 import util
@@ -29,8 +30,8 @@ def inject_session_user():
 def inject_search_title_processor():
     def inner(search_term):
         if search_term:
-            return "search for '{}'".format(search_term)
-        return "search"
+            return _("search for %(search_term)s", search_term=search_term)
+        return _("search")
     return dict(format_search_title=inner)
 
 @util.delay_context_processor

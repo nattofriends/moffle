@@ -130,12 +130,14 @@ function MovementTooltip() {
 
 function PrivateMessages() {
     this.pm = $(".js-pm-hide").not("[data-filter-value^='#']");
-    this.pmButton = $(".js-pm-action");
+    this.pmShow = $(".js-pm-action-show");
+    this.pmHide = $(".js-pm-action-hide");
 
     if (this.pm.length > 0) {
         this.pm.addClass("hidden");
-        this.pmButton.removeClass("hidden");
-        this.pmButton.click($.proxy(this.onClick, this));
+        this.pmShow.removeClass("hidden");
+        this.pmShow.click($.proxy(this.onClick, this));
+        this.pmHide.click($.proxy(this.onClick, this));
         this.hidden = true;
     }
 
@@ -145,11 +147,13 @@ PrivateMessages.prototype.onClick = function (evt) {
     if (this.hidden === true) {
         this.hidden = false;
         this.pm.removeClass("hidden");
-        this.pmButton.html("&laquo; private messages");
+        this.pmShow.addClass("hidden");
+        this.pmHide.removeClass("hidden");
     } else {
         this.hidden = true;
         this.pm.addClass("hidden");
-        this.pmButton.html("private messages &raquo;");
+        this.pmShow.removeClass("hidden");
+        this.pmHide.addClass("hidden");
     }
 
     evt.preventDefault();

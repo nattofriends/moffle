@@ -39,7 +39,7 @@
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-search"></span>
                         </span>
-                        <input type="text" name="text" class="form-control" placeholder="search {{ channel }}">
+                        <input type="text" name="text" class="form-control" placeholder="{{ _('search %(channel)s', channel=channel) }}">
                     </div>
                 </div>
 
@@ -47,17 +47,17 @@
                     <ul class="pagination pagination-items-{{ pagination_control }}">
                         {% if log.before %}
                             <li>
-                                <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>
+                                <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">{{ _('&larr; Older') }}</a>
                             </li>
                         {% endif %}
 
                         <li>
-                            <a href="#end">Bottom</a>
+                            <a href="#end">{{ _('Bottom') }}</a>
                         </li>
 
                         {% if log.after %}
                             <li>
-                                <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">Newer &rarr;</a>
+                                <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">{{ _('Newer &rarr;') }}</a>
                             </li>
                         {% endif %}
                     </ul>
@@ -77,17 +77,17 @@
             <ul class="pagination pagination-items-{{ pagination_control }}">
                 {% if log.before %}
                     <li>
-                        <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">&larr; Older</a>
+                        <a href="{{ url_for('log', network=network, channel=channel, date=log.before, _anchor='end') }}">{{ _('&larr; Older') }}</a>
                     </li>
                     {% endif %}
 
                 <li>
-                    <a href="#top">Top</a>
+                    <a href="#top">{{ _('Top') }}</a>
                 </li>
 
                 {% if log.after %}
                     <li>
-                        <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">Newer &rarr;</a>
+                        <a href="{{ url_for('log', network=network, channel=channel, date=log.after) }}">{{ _('Newer &rarr;') }}</a>
                     </li>
                 {% endif %}
             </ul>

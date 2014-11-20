@@ -23,7 +23,7 @@
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon">#</span>
-                    <input type="text" class="form-control" placeholder="channel/pm filter" data-filter-target=".js-channels">
+                    <input type="text" class="form-control" placeholder="{{ _('channel/pm filter') }}" data-filter-target=".js-channels">
                 </div>
             </div>
         </form>
@@ -33,6 +33,7 @@
         {% for channel in channels %}
             <a class="network btn btn-primary js-pm-hide" href="{{ url_for('channel', network=network, channel=channel) }}" data-filter-value="{{ channel }}">{{ channel }}</a>
         {% endfor %}
-        <a class="network btn btn-default hidden js-pm-action" href="#">private messages &raquo;</a>
+        <a class="network btn btn-default hidden js-pm-action-show" href="#">{{ _('private messages &raquo;') }}</a>
+        <a class="network btn btn-default hidden js-pm-action-hide" href="#">{{ _('&laquo; private messages') }}</a>
     </div>
 {% endblock %}
