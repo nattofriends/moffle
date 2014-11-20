@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 from math import floor
 
+from babel import negotiate_locale
 from flask import Flask
 from flask import abort
 from flask import redirect
@@ -140,7 +141,13 @@ def not_found(ex):
 
 @babel.localeselector
 def get_locale():
-    return request.accept_languages.best_match(config.LOCALE_PREFER)
+    from_cookie = request.cookies.get('lang', None)
+
+    if from_cookie and from_cookie in config.LOCALE_PREFER:
+        return from_cookie
+    else:
+        preferred = [x.replace('-', '_') for x in request.accept_languages.values()]
+        return negotiate_locale(preferred, config.LOCALE_PREFER)
 
 def create():
     global paths, grep

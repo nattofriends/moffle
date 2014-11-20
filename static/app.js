@@ -159,3 +159,16 @@ PrivateMessages.prototype.onClick = function (evt) {
     evt.preventDefault();
     evt.stopPropagation();
 };
+
+function LocaleOverride() {
+    $(window).keypress(function (evt) {
+        if (evt.which == 108) { // 'l'
+            var pref = window.prompt("Enter your preferred language (ISO-639-1, thanks)");
+
+            if (pref !== null) {
+                document.cookie = "lang=" + pref;
+                location.reload();
+            }
+        }
+    });
+}
