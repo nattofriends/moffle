@@ -5,6 +5,7 @@ import re
 import cachetools
 import jinja2.utils
 from flask import url_for
+from jinja2 import escape
 from jinja2 import Markup
 
 import util
@@ -98,6 +99,7 @@ def hostmask_tooltip(s):
     """Remove join/part tooltips before urlize can get to them.
     """
     timestamp, maybe_user, rest = s.split(' ', 2)
+    rest = escape(rest)
 
     # I am a bad person.
     def replace_interleave(m):
