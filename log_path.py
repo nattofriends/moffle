@@ -88,7 +88,7 @@ class LogPath:
 
         files = [filename for filename in matches if filename['channel'] in channels]
 
-        return files
+        return sorted(files, key=itemgetter('date_obj'), reverse=True)
 
     def log(self, network, channel, date):
         matches = self._channels_list(network)

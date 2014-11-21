@@ -127,7 +127,7 @@ class GrepBuilder:
                     chunks_folded[-1].extend(elem)
                 else:
                     chunks_folded.append(elem)
-            if len(chunks_folded[0]) == 1:
+            if len(chunks_folded) > 1 and len(chunks_folded[0]) == 1:
                 chunks_folded[1] == chunks_folded[0] + chunks_folded[1]
                 del chunks_folded[0]
 
