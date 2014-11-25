@@ -26,7 +26,7 @@ CTRL_REGEX = re.compile(r'(?:[%s%s%s])|(%s(?:\d{1,2})?,?(?:\d{1,2})?)' % (
 jinja2.utils._punctuation_re = re.compile(
     '^(?P<lead>(?:%s)*)(?P<middle>.*?)(?P<trail>(?:%s)*)$' % (
         '|'.join(map(re.escape, ('(', '<', '&lt;'))),
-        '|'.join(map(re.escape, ('.', ',', ')', '>', '\n', '&gt;', CTRL_COLOR, CTRL_RESET, CTRL_BOLD, CTRL_COLOR)))
+        '|'.join(map(re.escape, ('.', ',', ')', '>', '\n', '&gt;', '\'', '"', CTRL_COLOR, CTRL_RESET, CTRL_BOLD, CTRL_COLOR)))
     )
 )
 
