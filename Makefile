@@ -79,4 +79,4 @@ translations-compile: translations-update.stamp
 	$(VENV3)/bin/pybabel compile -d translations
 
 tests:
-	PYTHONPATH=. $(VENV)/bin/py.test -vvv tests
+	PYTHONPATH=. $(VENV3)/bin/py.test -vvv tests
