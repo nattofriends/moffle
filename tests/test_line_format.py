@@ -28,7 +28,7 @@ def test_url_patching(plain_url, expected_href):
 @mock.patch('line_format.Markup', side_effect=lambda s: s)
 def test_hostmask_tooltip(markup_init, sub):
     replace_marker = "I am a tooltip"
-    sub.side_effect = lambda regex, replace, s: replace_marker
+    sub.side_effect = lambda regex, replace, s, count: replace_marker
 
     line = "[00:00:00] *** Joins test (test@test)"
 
