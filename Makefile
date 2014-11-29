@@ -19,6 +19,12 @@ BIN = $(VENV3)/bin/uwsgi
 
 RM = rm -f
 
+ifeq ($(shell which py.test),)
+	PYTEST = $(VENV3)/bin/py.test
+else
+	PYTEST = $(shell which py.test)
+endif
+
 .PHONY: clean tests translations-rescan translations-update translations-compile
 
 start: css ensure-stopped
@@ -79,4 +85,5 @@ translations-compile: translations-update.stamp
 	$(VENV3)/bin/pybabel compile -d translations
 
 tests:
-	PYTHONPATH=. $(VENV3)/bin/py.test -vvv tests
+	echo $(PYTEST)
+	PYTHONPATH=. $(PYTEST) -vvv tests
