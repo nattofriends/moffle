@@ -2,6 +2,8 @@
 
 Moffle, the Proceedings of the Internet Relay Chat Preservation Society
 
+[![Build Status](https://travis-ci.org/nattofriends/moffle.svg?branch=master)](https://travis-ci.org/nattofriends/moffle)
+
 ## Install
 
   1. You will need: ``python``, ``virtualenv``, ``nodejs``, ``npm``, ``bower``. Install them however you please. Python 2 and 3 are required.
