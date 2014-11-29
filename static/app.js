@@ -162,6 +162,10 @@ PrivateMessages.prototype.onClick = function (evt) {
 
 function LocaleOverride() {
     $(window).keypress(function (evt) {
+        if ($(evt.target).is('input')) {
+            return;
+        }
+
         if (evt.which == 108) { // 'l'
             var pref = window.prompt("Enter your preferred language (ISO-639-1, thanks)");
 
