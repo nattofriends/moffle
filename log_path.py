@@ -217,7 +217,7 @@ class DirectoryDelimitedLogPath(LogPath):
 
         files = chain.from_iterable([self._dates_list(network, ch) for ch in channels])
 
-        return files
+        return [x for x in files]
 
     def log(self, network, channel, date):
         channels = self._channels_list(network)
@@ -306,5 +306,8 @@ class DirectoryDelimitedLogPath(LogPath):
             'date': filename[:-1*len(DirectoryDelimitedLogPath.LOG_SUFFIX)],
             'filename': os.path.join(channel_base, filename)
         } for filename in files if filename.endswith(DirectoryDelimitedLogPath.LOG_SUFFIX)]
+
+        for f in files:
+            f['date_obj'] = datetime.strptime(f['date'], '%Y%m%d').date()
 
         return files
