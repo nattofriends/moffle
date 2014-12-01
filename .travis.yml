@@ -1,0 +1,10 @@
+language: python
+python:
+    - "3.4"
+    - "3.3"
+install: 
+    - pip install -r requirements-3.txt
+    - cp Makefile.appconfig.example Makefile.appconfig
+    - cp config.py.example config.py
+script:
+    - make tests

@@ -114,6 +114,7 @@ def hostmask_tooltip(s):
             r'([^ ]+) \(([^)]+?)\)',
             replace_interleave,
             rest,
+            count=1,
         )
 
     return Markup(' ').join((timestamp, maybe_user, Markup(rest)))
