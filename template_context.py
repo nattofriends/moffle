@@ -1,3 +1,4 @@
+import subprocess
 from urllib.parse import quote
 
 from flask import request
@@ -44,3 +45,23 @@ def inject_title_processor():
 @util.delay_context_processor
 def inject_site_brand():
     return dict(brand=config.SITE_NAME)
+
+@util.delay_context_processor
+def inject_git_status():
+     p = subprocess.Popen(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+     revision, __ = p.communicate()
+
+     dirty = False
+
+     if p.returncode != 0:
+         revision = None
+     else:
+         revision = revision.decode("utf-8").strip()[:8]
+         p = subprocess.Popen(["git", "status", "--porcelain"], stdout=subprocess.PIPE)
+         status, __ = p.communicate()
+         if p.returncode == 0:
+             if status.strip():
+                 dirty = True
+
+     return dict(git_status="{}{}".format(revision, _(" (dirty)") if dirty else ""))
+

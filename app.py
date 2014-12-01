@@ -100,7 +100,7 @@ def search():
 
         max_segment = grep.max_segment(dates[-1]['date_obj'])
 
-        return render_template('search_ajax.html', valid=valid, form=form, network=network, channel=channel, query=form.text.data, max_segment=max_segment)
+        return render_template('search_ajax.html', valid=valid, form=form, network=network, channel=channel, author=form.author.data, query=form.text.data, max_segment=max_segment)
 
     else:
         # We should have another copy of this to use...
@@ -110,6 +110,7 @@ def search():
             results = grep.run(
                 channels=[channel],
                 network=network,
+                author=form.author.data,
                 query=form.text.data,
             )
 
@@ -129,6 +130,7 @@ def search_ajax_chunk():
         results = grep.run(
             channels=[form.channel.data],
             network=form.network.data,
+            author=form.author.data,
             query=form.text.data,
             date_range=[date_start, date_end],
         )

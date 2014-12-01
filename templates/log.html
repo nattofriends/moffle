@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "forms.html" import advanced_search, header_text_search %}
 
 {% block title %}
     {{ format_title(channel) }}
@@ -16,6 +17,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {{ advanced_search(network, channel) }}
+
     <h1 class="page-header">
         <span class="property">
             <span class="glyphicon glyphicon-globe"></span> {{ network }}
@@ -30,19 +34,7 @@
         </span>
 
         <div class="actions">
-            <form class="header-search form-inline" role="search" action="/search">
-                <div class="form-group">
-                    <input type="hidden" name="network" value="{{ network }}">
-                    <input type="hidden" name="channel" value="{{ channel }}">
-
-                    <div class="input-group">
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-search"></span>
-                        </span>
-                        <input type="text" name="text" class="form-control" placeholder="{{ _('search %(channel)s', channel=channel) }}">
-                    </div>
-                </div>
-
+            {% call header_text_search(network, channel, _('search %(channel)s', channel=channel)) %}
                 <div class="form-group">
                     <ul class="pagination pagination-items-{{ pagination_control }}">
                         {% if log.before %}
@@ -62,7 +54,7 @@
                         {% endif %}
                     </ul>
                 </div>
-            </form>
+            {% endcall %}
         </div>
     </h1>
 

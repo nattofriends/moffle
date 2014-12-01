@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "forms.html" import advanced_search, header_text_search %}
 
 {% block title %}
     {{ format_title(format_search_title(form.text.data)) }}
@@ -19,6 +20,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {{ advanced_search(network, channel, form.author.data, form.text.data) }}
+
     <h1 class="page-header">
         <span class="property">
             <span class="glyphicon glyphicon-search"></span>
@@ -41,19 +45,7 @@
             </span>
         {% endif %}
 
-        <form class="header-search form-inline pull-right" role="search" action="/search">
-            <input type="hidden" name="network" value="{{ network }}">
-            <input type="hidden" name="channel" value="{{ channel }}">
-
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-search"></span>
-                    </span>
-                    <input type="text" name="text" class="form-control" placeholder="{{ _('text search') }}" value="{% if form.text.data %}{{ form.text.data }}{% endif %}">
-                </div>
-            </div>
-        </form>
+        {{ header_text_search(network, channel, _('text search'), form.text.data) }}
     </h1>
 
     {% if not valid %}

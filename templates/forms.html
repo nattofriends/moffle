@@ -1,0 +1,48 @@
+{% macro header_text_search(network, channel, placeholder, value='') -%}
+<form class="header-search form-inline pull-right" role="search" action="/search">
+    <input type="hidden" name="network" value="{{ network }}">
+    <input type="hidden" name="channel" value="{{ channel }}">
+
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon">
+                <a class="glyphicon glyphicon-search" data-toggle="modal" data-target="#advanced-search"></a>
+            </span>
+            <input type="text" name="text" class="form-control" placeholder="{{ placeholder }}"{% if value %} value="{{value}}"{% endif %}>
+        </div>
+    </div>
+
+    {% if caller %}{{ caller() }}{% endif %}
+</form>
+{% endmacro %}
+
+{% macro advanced_search(network, channel, author='', query='') -%}
+<div class="modal fade" id="advanced-search" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">{{ _('Advanced Search') }}</h4>
+            </div>
+            <form class="form-inline" role="search" action="/search">
+                <div class="modal-body">
+                    <input type="hidden" name="network" value="{{ network }}">
+                    <input type="hidden" name="channel" value="{{ channel }}">
+
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <input type="text" name="author" class="form-control" placeholder="{{ _('<nick>') }}"{% if author %} value="{{ author }}"{% endif %}>
+                        </div>
+                        <div class="col-sm-9">
+                            <input type="text" name="text" class="form-control" placeholder="{{ _('search query') }}"{% if query %} value="{{ query }}"{% endif %}>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">{{ _('Search') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{%- endmacro %}

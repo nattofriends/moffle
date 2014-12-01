@@ -67,9 +67,10 @@ Autofilter.prototype.bindChange = function(evt) {
     });
 }
 
-function AjaxSearch(network, channels, query, maxSegment) {
+function AjaxSearch(network, channels, author, query, maxSegment) {
     this.network = network;
     this.channels = channels;
+    this.author = author;
     this.query = query;
     this.maxSegment = maxSegment;
 
@@ -107,6 +108,7 @@ AjaxSearch.prototype.setupAjax = function() {
         data: {
             network: this.network,
             channel: this.channels,
+            author: this.author,
             text: this.query,
             segment: this.segment
         }

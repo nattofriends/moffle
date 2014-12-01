@@ -54,6 +54,9 @@ clean:
 	$(RM) messages.pot
 	$(RM) *.stamp
 
+last-exception:
+	@sed -nE '/^Traceback/,/^\[pid: /p' $(UWSGI_LOG) | tac | sed '/^Traceback/q' | tac
+
 css: static/style.css
 
 static/style.css: static/style.css.scss
