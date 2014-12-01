@@ -7,6 +7,7 @@ class SearchForm(Form):
     text = StringField('text', validators=[DataRequired()])
     network = StringField('network', validators=[DataRequired()])
     channel = StringField('channel', validators=[DataRequired()])
+    author = StringField('author')
 
 class AjaxSearchForm(SearchForm):
     segment = IntegerField('segment', default=0)

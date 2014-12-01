@@ -48,7 +48,9 @@ class GrepBuilder:
         self.pool = Pool(config.SEARCH_WORKERS, init_worker)
 
     def emit(self, channels, network, query, author=None, date_range=None):
-        if not author:
+        if author:
+            author = quote(unescape(author))
+        else:
             author = self.author_default
 
         if date_range:

@@ -132,6 +132,15 @@ pre {
             }
         }
     }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    a:hover {
+        color: $brand-primary;
+    }
 }
 
 .property {
@@ -149,6 +158,13 @@ pre {
         font-size: 24px;
         margin-bottom: 9px;
         display: block;
+    }
+}
+
+#advanced-search {
+    /* Yes this somewhat defeats the purpose of inline forms but whatever. */
+    input {
+        width: 100%;
     }
 }
 

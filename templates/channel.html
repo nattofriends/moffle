@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "forms.html" import advanced_search, header_text_search %}
 
 {% block title %}
     {{ format_title(channel) }}
@@ -10,6 +11,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {{ advanced_search(network, channel) }}
+
     <h1 class="page-header clearfix">
         <span class="property">
             <span class="glyphicon glyphicon-globe"></span> {{ network }}
@@ -30,19 +34,8 @@
             </div>
         </form>
 
-        <form class="header-search form-inline pull-right" role="search" action="/search">
-            <input type="hidden" name="network" value="{{ network }}">
-            <input type="hidden" name="channel" value="{{ channel }}">
+        {{ header_text_search(network, channel, _('search %(channel)s', channel=channel)) }}
 
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-search"></span>
-                    </span>
-                    <input type="text" name="text" class="form-control" placeholder="{{ _('search %(channel)s', channel=channel) }}">
-                </div>
-            </div>
-        </form>
     </h1>
 
     <div class="js-dates">
