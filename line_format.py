@@ -106,7 +106,10 @@ def hostmask_tooltip(s):
         user, email = m.groups()
         return '<span class="movement-tooltip" data-toggle="tooltip" data-placement="top" title="{email}">{user}</span>'.format(
             user=user,
-            email=''.join(itertools.chain.from_iterable(zip(email, spaces))),
+            email=''.join(itertools.chain.from_iterable(zip(
+                CTRL_REGEX.sub('', email),
+                spaces,
+            ))),
         )
 
     if any(_lenient_prefix(rest, prefix) for prefix in ('Quits', 'Parts', 'Joins')):

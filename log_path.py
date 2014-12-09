@@ -168,10 +168,6 @@ class LogPath:
         if not os.path.exists(channel_base):
             return None
 
-        if network in self._channel_list_cache:
-            if date.today() == self._channel_list_stamp[network]:
-                return self._channel_list_cache[network]
-
         files = os.listdir(channel_base)
 
         file_matches = [LOG_FILENAME_REGEX.match(filename) for filename in files]
@@ -179,9 +175,6 @@ class LogPath:
 
         for match in file_matches:
             match['date_obj'] = datetime.strptime(match['date'], '%Y%m%d').date()
-
-        self._channel_list_stamp[network] = date.today()
-        self._channel_list_cache[network] = file_matches
 
         return file_matches
 
