@@ -108,12 +108,15 @@ class LogPath:
         ):
             raise
 
-        parsed_date = ldp.parse(date)
+        channel_files = [filename for filename in matches if filename['channel'] == channel]
+        channel_files = sorted(channel_files, key=itemgetter('date'))
+
+        latest = channel_files[-1]['date']
+
+        parsed_date = ldp.parse(date, latest)
         if parsed_date != date:
             raise exceptions.CanonicalNameException(util.Scope.DATE, parsed_date)
 
-        channel_files = [filename for filename in matches if filename['channel'] == channel]
-        channel_files = sorted(channel_files, key=itemgetter('date'))
 
         log = [filename for filename in channel_files if filename['date'] == date]
 

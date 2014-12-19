@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import re
 from collections import namedtuple
 from datetime import datetime
@@ -43,6 +42,7 @@ class LooseDateParser(object):
             # Literals
             (self.literal("today"), self.render_callable(datetime.now)),
             (self.literal("yesterday"), self.render_callable(LooseDateParser.yesterday)),
+            (self.literal("latest"), lambda _: self.latest),
 
             # Weekdays
             (self.regex(
@@ -229,8 +229,9 @@ class LooseDateParser(object):
             match_replace.day
         ).strftime(self.RENDER_FORMAT)
 
-    def parse(self, text):
+    def parse(self, text, latest):
         text = text.lower()
+        self.latest = latest
 
         for matcher, replacer in self.formats:
             match_replace = matcher(text)
