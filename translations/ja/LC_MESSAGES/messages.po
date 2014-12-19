@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-11-20 03:12-0800\n"
+"POT-Creation-Date: 2014-12-19 14:14-0800\n"
 "PO-Revision-Date: 2014-11-19 22:35-0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -17,40 +17,61 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: template_context.py:33
+#: template_context.py:35
 #, python-format
 msgid "search for %(search_term)s"
 msgstr "%(search_term)sの検索"
 
-#: template_context.py:34
+#: template_context.py:36
 msgid "search"
 msgstr "検索"
 
-#: templates/base.html:41
+#: template_context.py:66
+msgid " (dirty)"
+msgstr ""
+
+#: templates/base.html:43
 msgid "Toggle navigation"
 msgstr ""
 
-#: templates/base.html:61
+#: templates/base.html:63
 #, python-format
 msgid "Hi %(name)s"
 msgstr "おはよう %(name)s"
 
-#: templates/base.html:62
+#: templates/base.html:64
 msgid "Log out"
 msgstr "ログアウト"
 
-#: templates/base.html:64
+#: templates/base.html:66
 msgid "Log in"
 msgstr "ログイン"
 
-#: templates/channel.html:28
+#: templates/channel.html:32
 msgid "filter dates"
 msgstr "日付フィルター"
 
-#: templates/channel.html:42 templates/log.html:42
+#: templates/channel.html:37 templates/log.html:37
 #, python-format
 msgid "search %(channel)s"
 msgstr "%(channel)sの検索"
+
+#: templates/forms.html:25
+msgid "Advanced Search"
+msgstr "検索オプション"
+
+#: templates/forms.html:34
+msgid "<nick>"
+msgstr "<ニック>"
+
+#: templates/forms.html:37
+msgid "search query"
+msgstr "検索キーワード"
+
+#: templates/forms.html:42 templates/search.html:32
+#: templates/search_ajax.html:38
+msgid "Search"
+msgstr "検索"
 
 #: templates/index.html:10
 #, python-format
@@ -65,19 +86,19 @@ msgstr "IRC記録保護協会"
 msgid "network"
 msgstr "ネットワーク"
 
-#: templates/log.html:50 templates/log.html:80
+#: templates/log.html:42 templates/log.html:72
 msgid "&larr; Older"
 msgstr "&larr; 前"
 
-#: templates/log.html:55
+#: templates/log.html:47
 msgid "Bottom"
 msgstr "下へ"
 
-#: templates/log.html:60 templates/log.html:90
+#: templates/log.html:52 templates/log.html:82
 msgid "Newer &rarr;"
 msgstr "次 &rarr;"
 
-#: templates/log.html:85
+#: templates/log.html:77
 msgid "Top"
 msgstr "上へ"
 
@@ -93,29 +114,25 @@ msgstr "プライベート・メッセージ &raquo;"
 msgid "&laquo; private messages"
 msgstr "&laquo; プライベート・メッセージ"
 
-#: templates/search_ajax.html:34
-msgid "Search"
-msgstr "検索"
-
-#: templates/search_ajax.html:59
+#: templates/search.html:48 templates/search_ajax.html:54
 msgid "text search"
 msgstr "テキスト検索"
 
-#: templates/search_ajax.html:69
+#: templates/search.html:55 templates/search_ajax.html:62
 msgid ""
 "No network scope was provided. For performance reasons, searches need to "
 "occur to occur in a network scope."
 msgstr ""
 
-#: templates/search_ajax.html:72
+#: templates/search.html:58 templates/search_ajax.html:65
 msgid "You didn't provide any search terms. Try again?"
 msgstr ""
 
-#: templates/search_ajax.html:80
-msgid "Loading..."
-msgstr "読み込み中..."
-
-#: templates/search_ajax.html:85
+#: templates/search.html:68 templates/search_ajax.html:78
 msgid "Sorry, there were no search results."
 msgstr "該当する検索結果はありません。"
+
+#: templates/search_ajax.html:73
+msgid "Loading..."
+msgstr "読み込み中..."
 
