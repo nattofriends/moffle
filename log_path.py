@@ -18,7 +18,7 @@ import looseboy
 import util
 
 LOG_INTERMEDIATE_BASE = "moddata/log"
-LOG_FILENAME_REGEX = re.compile("(?P<filename>(?P<network>(default|znc)+)_(?P<channel>[#&]*[a-zA-Z0-9/_\-\.\?\$]+)_(?P<date>\d{8})\.log)")
+LOG_FILENAME_REGEX = re.compile("(?P<filename>(?P<network>(default|znc)+)_(?P<channel>[#&]*[a-zA-Z0-9\u4e00-\u9fff/_\-\.\?\$]+)_(?P<date>\d{8})\.log)")
 
 LogResult = namedtuple('LogResult', ['log', 'before', 'after'])
 
