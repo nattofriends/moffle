@@ -9,6 +9,7 @@ import os
 import re
 
 from natsort import natsorted
+from natsort import ns
 import cachetools
 
 from acl import AccessControl
@@ -50,11 +51,14 @@ class LogPath:
         if matches is None:
             raise exceptions.NoResultsException()
 
-        channels = natsorted({
-            filename['channel']
-            for filename in matches
-            if self.ac.evaluate(network, filename['channel'])
-        })
+        channels = natsorted(
+            {
+                filename['channel']
+                for filename in matches
+                if self.ac.evaluate(network, filename['channel'])
+            },
+            alg=ns.G | ns.LF,
+        )
 
         if not channels:
             raise exceptions.NoResultsException()
