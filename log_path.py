@@ -118,9 +118,10 @@ class LogPath:
         latest = channel_files[-1]['date']
 
         parsed_date = ldp.parse(date, latest)
-        if parsed_date != date:
+        if not parsed_date:
+            raise exceptions.NoResultsException()
+        elif parsed_date != date:
             raise exceptions.CanonicalNameException(util.Scope.DATE, parsed_date)
-
 
         log = [filename for filename in channel_files if filename['date'] == date]
 
@@ -241,7 +242,9 @@ class DirectoryDelimitedLogPath(LogPath):
         latest = max(dates, key=itemgetter('date'))['date']
 
         parsed_date = ldp.parse(date, latest)
-        if parsed_date != date:
+        if not parsed_date:
+            raise exceptions.NoResultsException()
+        elif parsed_date != date:
             raise exceptions.CanonicalNameException(util.Scope.DATE, parsed_date)
 
         # Reverse the human-friendly ordering here.
