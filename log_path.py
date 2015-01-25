@@ -238,7 +238,9 @@ class DirectoryDelimitedLogPath(LogPath):
         ):
             raise
 
-        parsed_date = ldp.parse(date)
+        latest = dates[-1]['date']
+
+        parsed_date = ldp.parse(date, latest)
         if parsed_date != date:
             raise exceptions.CanonicalNameException(util.Scope.DATE, parsed_date)
 
