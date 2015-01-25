@@ -238,7 +238,7 @@ class DirectoryDelimitedLogPath(LogPath):
         ):
             raise
 
-        latest = dates[-1]['date']
+        latest = max(dates, key=itemgetter('date'))['date']
 
         parsed_date = ldp.parse(date, latest)
         if parsed_date != date:
