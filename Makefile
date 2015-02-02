@@ -59,7 +59,7 @@ last-exception:
 
 css: static/style.css
 
-static/style.css: static/style.css.scss
+static/style.css: static/style.css.scss static/vendor/bootstrap-sass-official/assets/stylesheets/_bootstrap.scss
 	$(VENV3)/bin/pyscss < static/style.css.scss > static/style.css
 
 init-env:
