@@ -172,7 +172,7 @@ function LocaleOverride() {
             var pref = window.prompt("Enter your preferred language (ISO-639-1, thanks)");
 
             if (pref !== null) {
-                document.cookie = "lang=" + pref;
+                document.cookie = "lang=" + pref + ";path=/";
                 location.reload();
             }
         }
