@@ -36,6 +36,9 @@ SEARCH_AJAX_ENABLED = True
 # (with respect to their Accept-Language header)
 LOCALE_PREFER = ['ja', 'en']
 
+# Debug options you shouldn't touch
+DEBUG_PROFILER = False
+
 # 4-tuples of allow/deny, oauth email (* = all), scope (network/channel/*),
 # match (regex or *)
 # Rules are considered by their scope, then their action

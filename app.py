@@ -10,6 +10,9 @@ from flask import render_template
 from flask import url_for
 from flask.ext.babel import Babel
 from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.contrib.profiler import ProfilerMiddleware
+
+
 
 import config
 import exceptions
@@ -168,6 +171,10 @@ def create():
 
     if config.FLASK_PROXY:
         app.wsgi_app = ProxyFix(app.wsgi_app)
+
+    if config.DEBUG_PROFILER:
+        app.config['PROFILE'] = True
+        app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
 
     return app
 

@@ -25,6 +25,12 @@ LogResult = namedtuple('LogResult', ['log', 'before', 'after'])
 
 ldp = looseboy.LooseDateParser()
 
+@cachetools.lru_cache(maxsize=1024)
+def parse_date(date_string):
+    components = date_string[0:4], date_string[4:6], date_string[6:8]
+    components = map(int, components)
+    return date(*components)
+
 class LogPath:
 
     def __init__(self):
@@ -191,7 +197,7 @@ class LogPath:
         file_matches = [match.groupdict() for match in file_matches if match is not None]
 
         for match in file_matches:
-            match['date_obj'] = datetime.strptime(match['date'], '%Y%m%d').date()
+            match['date_obj'] = parse_date(match['date'])
 
         return file_matches
 
