@@ -1,4 +1,5 @@
 cachetools
+fastcache
 Flask
 Flask-Babel
 Flask-OAuthlib

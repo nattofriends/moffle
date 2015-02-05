@@ -1,6 +1,8 @@
 from datetime import date, datetime, timedelta
 from math import floor
 
+import monkey_patch
+
 from babel import negotiate_locale
 from flask import Flask
 from flask import abort

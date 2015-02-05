@@ -2,6 +2,7 @@ import itertools
 import re
 
 import cachetools
+import fastcache
 import jinja2.utils
 from flask import url_for
 from jinja2 import escape
@@ -93,7 +94,7 @@ def generate_span(state):
 
 
 @util.delay_template_filter('hostmask_tooltip')
-@cachetools.lru_cache(maxsize=16384)
+@fastcache.clru_cache(maxsize=16384)
 def hostmask_tooltip(s):
     """Remove join/part tooltips before urlize can get to them.
     """
@@ -125,7 +126,7 @@ def hostmask_tooltip(s):
 
 # Don't ask me why the filter name is different from the function name.
 @util.delay_template_filter('control_codes')
-@cachetools.lru_cache(maxsize=16384)
+@fastcache.clru_cache(maxsize=16384)
 def irc_format(text, autoescape=None):
     result = ''
 
@@ -178,7 +179,7 @@ def irc_format(text, autoescape=None):
     return result
 
 
-@cachetools.lru_cache(maxsize=16384)
+@fastcache.clru_cache(maxsize=16384)
 def _lenient_prefix(haystack, needle):
     try:
         return haystack.index(needle) == 0
@@ -187,7 +188,7 @@ def _lenient_prefix(haystack, needle):
 
 
 @util.delay_template_filter('line_style')
-@cachetools.lru_cache(maxsize=16384)
+@fastcache.clru_cache(maxsize=16384)
 def line_style(s, line_no, is_search, network=None, ctx=None):
     """
     ctx is a grep Line object. Yes, I know it's duplicating s and line_no.

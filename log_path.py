@@ -11,6 +11,7 @@ import re
 from natsort import natsorted
 from natsort import ns
 import cachetools
+import fastcache
 
 from acl import AccessControl
 import config
@@ -25,7 +26,7 @@ LogResult = namedtuple('LogResult', ['log', 'before', 'after'])
 
 ldp = looseboy.LooseDateParser()
 
-@cachetools.lru_cache(maxsize=1024)
+@fastcache.clru_cache(maxsize=1024)
 def parse_date(date_string):
     components = date_string[0:4], date_string[4:6], date_string[6:8]
     components = map(int, components)
@@ -159,7 +160,7 @@ class LogPath:
 
         return LogResult(log_file, before, after)
 
-    @cachetools.lru_cache(maxsize=128)
+    @fastcache.clru_cache(maxsize=128)
     def network_to_path(self, network):
         return os.path.join(config.LOG_BASE, network, LOG_INTERMEDIATE_BASE)
 
@@ -286,11 +287,11 @@ class DirectoryDelimitedLogPath(LogPath):
         return LogResult(log_file, before, after)
 
     # This lets us use LogPath.networks instead of reimplementing.
-    @cachetools.lru_cache(maxsize=128)
+    @fastcache.clru_cache(maxsize=128)
     def network_to_path(self, network):
         return os.path.join(config.LOG_BASE, network)
 
-    @cachetools.lru_cache(maxsize=128)
+    @fastcache.clru_cache(maxsize=128)
     def channel_to_path(self, network, channel):
         return os.path.join(self.network_to_path(network), channel)
 

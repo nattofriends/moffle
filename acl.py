@@ -3,7 +3,7 @@ from copy import copy
 from itertools import chain
 
 from flask import session
-import cachetools
+import fastcache
 
 import config
 import util
@@ -152,7 +152,7 @@ class AccessControl:
     def evaluate(self, network, channel):
         return self._evaluate(self.user_email, network, channel)
 
-    @cachetools.lru_cache(maxsize=1024)
+    @fastcache.clru_cache(maxsize=1024)
     def _evaluate(self, user, network, channel):
         # From the tree.
         applicable = list(self.rules.find_rule(user, network, channel))

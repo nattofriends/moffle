@@ -2,7 +2,6 @@
 """
 from collections import namedtuple
 from datetime import date
-from datetime import datetime
 from datetime import timedelta
 from functools import partial
 from html import unescape
@@ -21,7 +20,7 @@ import logging
 import re
 import signal
 
-import cachetools
+import fastcache
 
 import config
 
@@ -91,7 +90,7 @@ class GrepBuilder:
 
         return hits
 
-    @cachetools.lru_cache(maxsize=16384)
+    @fastcache.clru_cache(maxsize=16384)
     def _process_output(self, output):
         splits = output.split('\n--\n')
 
