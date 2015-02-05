@@ -74,6 +74,15 @@ class LogPath:
         if not self.ac.evaluate(network, channel):
             raise exceptions.NoResultsException()
 
+        try:
+            self._maybe_channel(network, channel, matches)
+        except (
+            exceptions.NoResultsException,
+            exceptions.MultipleResultsException,
+            exceptions.CanonicalNameException,
+        ):
+            raise
+
         dates = [filename['date'] for filename in matches if filename['channel'] == channel]
 
         return sorted(dates, reverse=True)
