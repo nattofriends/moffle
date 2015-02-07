@@ -16,6 +16,7 @@ import jinja2.utils
         ("http://www.google.com\"", "http://www.google.com"),
         ("http://www.google.com\x02", "http://www.google.com"),
         ("http://www.google.com\x03", "http://www.google.com"),
+        ("\x02http://www.google.com", "http://www.google.com"),
     ],
 )
 def test_url_patching(plain_url, expected_href):

@@ -22,11 +22,11 @@ CTRL_REGEX = re.compile(r'(?:[%s%s%s])|(%s(?:\d{1,2})?,?(?:\d{1,2})?)' % (
     CTRL_COLOR
 ))
 
-# Support urlization of urls with control codes immediately following
+# Support urlization of urls with control codes immediately preceding and following
 jinja2.utils._punctuation_re = re.compile(
     '^(?P<lead>(?:%s)*)(?P<middle>.*?)(?P<trail>(?:%s)*)$' % (
-        '|'.join(map(re.escape, ('(', '<', '&lt;'))),
-        '|'.join(map(re.escape, ('.', ',', ')', '>', '\n', '&gt;', '&#39;', '&#34;', CTRL_COLOR, CTRL_RESET, CTRL_BOLD, CTRL_COLOR)))
+        '|'.join(map(re.escape, ('(', '<', '&lt;', CTRL_COLOR, CTRL_RESET, CTRL_UNDERLINE, CTRL_BOLD))),
+        '|'.join(map(re.escape, ('.', ',', ')', '>', '\n', '&gt;', '&#39;', '&#34;', CTRL_COLOR, CTRL_RESET, CTRL_UNDERLINE, CTRL_BOLD)))
     )
 )
 

@@ -4,6 +4,7 @@ Flask
 Flask-Babel
 Flask-OAuthlib
 Flask-WTF
+mock
 natsort
 pyScss
 pytest
