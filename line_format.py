@@ -113,7 +113,7 @@ def hostmask_tooltip(s):
             ))),
         )
 
-    if any(_lenient_prefix(rest, prefix) for prefix in ('Quits', 'Parts', 'Joins')):
+    if any(rest.startswith(prefix) for prefix in ('Quits', 'Parts', 'Joins')):
         rest = re.sub(
             r'([^ ]+) \(([^)]+?)\)',
             replace_interleave,
@@ -179,13 +179,6 @@ def irc_format(text, autoescape=None):
     return result
 
 
-@fastcache.clru_cache(maxsize=16384)
-def _lenient_prefix(haystack, needle):
-    if needle not in haystack:
-        return False
-    return haystack.index(needle) == 0
-
-
 @util.delay_template_filter('line_style')
 @fastcache.clru_cache(maxsize=16384)
 def line_style(s, line_no, is_search, network=None, ctx=None):
@@ -204,17 +197,15 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
     if ctx and ctx.line_marker == ':':
         classes.append("irc-highlight")
 
-    if _lenient_prefix(rest, "Quits"):
+    if rest.startswith("Quits"):
         msg_user_classes.append("irc-part")
-
-    if _lenient_prefix(rest, "Parts"):
+    elif rest.startswith("Parts"):
         msg_user_classes.append("irc-part")
-
-    if _lenient_prefix(rest, "Joins"):
+    elif rest.startswith("Joins"):
         msg_user_classes.append("irc-join")
 
     #  escaping is done before this.
-    if _lenient_prefix(rest, "&gt;"):
+    if rest.startswith("&gt;"):
         msg_classes.append("irc-greentext")
 
     # Make links back to actual line if we're in search.
