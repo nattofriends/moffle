@@ -11,6 +11,7 @@ from flask import request
 from flask import render_template
 from flask import url_for
 from flask.ext.babel import Babel
+from jinja2 import FileSystemBytecodeCache
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.contrib.profiler import ProfilerMiddleware
 
@@ -169,7 +170,10 @@ def create():
     app.register_blueprint(auth, url_prefix='/auth')
 
     app.secret_key = config.SECRET_KEY
-    app.debug = True
+    app.debug = config.DEBUG
+
+    # Not app.jinja_options, because ???
+    # app.jinja_env.bytecode_cache = FileSystemBytecodeCache()
 
     if config.FLASK_PROXY:
         app.wsgi_app = ProxyFix(app.wsgi_app)
