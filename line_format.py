@@ -181,10 +181,9 @@ def irc_format(text, autoescape=None):
 
 @fastcache.clru_cache(maxsize=16384)
 def _lenient_prefix(haystack, needle):
-    try:
-        return haystack.index(needle) == 0
-    except ValueError:
+    if needle not in haystack:
         return False
+    return haystack.index(needle) == 0
 
 
 @util.delay_template_filter('line_style')
