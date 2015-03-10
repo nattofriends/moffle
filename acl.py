@@ -168,27 +168,18 @@ class AccessControl:
                         # Granting network/anything shold have no effect on a
                         # channel decision.
                         pass
-                    elif wildcard_node.scope == util.Scope.CHANNEL:
+                    elif wildcard_node.scope in (util.Scope.CHANNEL, ANY):
                         # Check that our own value is fine.
                         # Then check the parent (a network) to see if it passes
                         # muster.
                         if all([
-                            wildcard_node.parent_value in (network, ANY),
+                            (wildcard_node.parent_value in (network, ANY) or wildcard_node.parent_scope == util.Scope.ROOT),
                             wildcard_node.value in (channel, ANY),
                         ]):
+                            if wildcard_node.scope == ANY:
+                                wildcard_node = copy(wildcard_node)
+                                wildcard_node.scope = util.Scope.CHANNEL
                             applicable.append(wildcard_node)
-                    elif wildcard_node.scope == ANY:
-                        # The same wildcard node will "apply" at the parent,
-                        # make sure it is valid in this manner too.
-                        # It probably wouldn't make sense to have a rule in
-                        # this manner unless both were wildcards
-                        # (Who is going to make a wildcard-scope non-wildcard
-                        # target rule? So you could read the freenode... user
-                        # logs from the freenode... network?)
-                        if wildcard_node.value in (network, channel, ANY):
-                            node_copy = copy(wildcard_node)
-                            node_copy.scope = util.Scope.CHANNEL
-                            applicable.append(node_copy)
                 else:  # No channel, we are being asked to make a decision on a network
                     if wildcard_node.scope == util.Scope.CHANNEL:
                         # We aren't performing scope expansion, so granting
