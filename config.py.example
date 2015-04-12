@@ -38,6 +38,7 @@ LOCALE_PREFER = ['ja', 'en']
 
 # Debug options you shouldn't touch
 DEBUG_PROFILER = False
+DEBUG = False
 
 # 4-tuples of allow/deny, oauth email (* = all), scope (network/channel/*),
 # match (regex or *)

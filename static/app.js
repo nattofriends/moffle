@@ -162,9 +162,14 @@ PrivateMessages.prototype.onClick = function (evt) {
     evt.stopPropagation();
 };
 
-function LocaleOverride() {
+function KeyboardShortcuts() {
     $(window).keypress(function (evt) {
         if ($(evt.target).is('input')) {
+            return;
+        }
+
+        if (evt.ctrlKey || evt.shiftKey || evt.altKey || evt.metaKey) {
+            // We don't like modifiers around these parts.
             return;
         }
 
@@ -175,7 +180,14 @@ function LocaleOverride() {
                 document.cookie = "lang=" + pref + ";path=/";
                 location.reload();
             }
+        } else if (evt.which == 47) { // '/'
+            $('#header-search').focus();
+        } else {
+            return;
         }
+
+        evt.preventDefault();
+        evt.stopPropagation();
     });
 }
 
