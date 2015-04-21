@@ -234,7 +234,7 @@ class DirectoryDelimitedLogPath(LogPath):
 
         files = chain.from_iterable([self._dates_list(network, ch) for ch in channels])
 
-        return [x for x in files]
+        return sorted(files, key=itemgetter('date_obj'), reverse=True)
 
     def log(self, network, channel, date):
         channels = self._channels_list(network)
