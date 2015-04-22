@@ -1,7 +1,6 @@
 import itertools
 import re
 
-import cachetools
 import fastcache
 import jinja2.utils
 from flask import url_for

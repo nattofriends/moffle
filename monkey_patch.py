@@ -3,6 +3,7 @@ import statistics
 import time
 
 import fastcache
+import jinja2.utils
 import werkzeug.urls
 
 from werkzeug._compat import text_type, to_native
@@ -84,3 +85,7 @@ werkzeug.urls.url_quote = fastcache.clru_cache(
 werkzeug.urls.url_join = fastcache.clru_cache(
     maxsize=16384,
 )(werkzeug.urls.url_join)
+
+jinja2.utils.urlize = fastcache.clru_cache(
+    maxsize=16384,
+)(jinja2.utils.urlize)
