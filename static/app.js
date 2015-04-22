@@ -200,3 +200,8 @@ function LoginUrl() {
         $(".js-login-url").attr('href') + encodeURIComponent(window.location.hash)
     );
 }
+
+function CanonicalUrl(url) {
+    // I guess it wouldn't hurt to _always_ replace...
+    window.history.replaceState(null, null, url);
+}

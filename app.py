@@ -6,6 +6,7 @@ import monkey_patch
 from babel import negotiate_locale
 from flask import Flask
 from flask import abort
+from flask import g
 from flask import redirect
 from flask import request
 from flask import render_template
@@ -14,8 +15,6 @@ from flask.ext.babel import Babel
 from jinja2 import FileSystemBytecodeCache
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.contrib.profiler import ProfilerMiddleware
-
-
 
 import config
 import exceptions
@@ -58,8 +57,12 @@ def channel(network, channel):
     except exceptions.MultipleResultsException as ex:
         return render_template('error/multiple_results.html', network=network, channel=channel)
     except exceptions.CanonicalNameException as ex:
-        info_type, canonical_name = ex.args
-        return redirect(url_for('channel', network=network, channel=canonical_name))
+        _, canonical_channel = ex.args
+        dates = paths.channel_dates(network, canonical_channel)
+        g.canonical_url = url_for('channel', network=network, channel_=canonical_channel)
+        return channel_(network, canonical_channel)
+
+channel_ = channel
 
 @app.route('/<network>/<channel>/<date>')
 def log(network, channel, date):
@@ -81,7 +84,10 @@ def log(network, channel, date):
         elif info_type == util.Scope.DATE:
             date = canonical_data
 
-        return redirect(url_for('log', network=network, channel=channel, date=date))
+        g.canonical_url = url_for('log', network=network, channel=channel, date=date)
+        return log_(network, channel, date)
+
+log_ = log
 
 @app.route('/search/')
 def search():
