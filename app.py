@@ -170,7 +170,8 @@ def create():
     app.register_blueprint(auth, url_prefix='/auth')
 
     app.secret_key = config.SECRET_KEY
-    app.debug = config.DEBUG
+    # Produces actual debug under internal server. Produces stderr under uwsgi
+    app.debug = True
 
     # Not app.jinja_options, because ???
     # app.jinja_env.bytecode_cache = FileSystemBytecodeCache()

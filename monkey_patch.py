@@ -8,7 +8,6 @@ import werkzeug.urls
 from werkzeug._compat import text_type, to_native
 from werkzeug.urls import _always_safe
 
-
 def _get_stringy_set(seq, charset, errors):
     if isinstance(seq, text_type):
         seq = seq.encode(charset, errors)
