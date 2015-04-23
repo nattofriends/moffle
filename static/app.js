@@ -203,5 +203,8 @@ function LoginUrl() {
 
 function CanonicalUrl(url) {
     // I guess it wouldn't hurt to _always_ replace...
+    if (window.location.hash !== "") {
+        url += window.location.hash;
+    }
     window.history.replaceState(null, null, url);
 }
