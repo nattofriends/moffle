@@ -1,6 +1,4 @@
 import itertools
-import statistics
-import time
 
 import fastcache
 import jinja2.utils
@@ -8,6 +6,8 @@ import werkzeug.urls
 
 from werkzeug._compat import text_type, to_native
 from werkzeug.urls import _always_safe
+
+import util
 
 def _get_stringy_set(seq, charset, errors):
     if isinstance(seq, text_type):
@@ -77,6 +77,7 @@ def _url_quote(string, charset='utf-8', errors='strict', safe='/:', unsafe=''):
     rv = _transform_impl(string, safe)
     return to_native(bytes(rv))
 
+
 # Don't look, kids.
 werkzeug.urls.url_quote = fastcache.clru_cache(
     maxsize=16384,
@@ -86,6 +87,8 @@ werkzeug.urls.url_join = fastcache.clru_cache(
     maxsize=16384,
 )(werkzeug.urls.url_join)
 
-jinja2.utils.urlize = fastcache.clru_cache(
+jinja2.utils.urlize = util.delay_template_filter(
+    'cached_urlize'
+)(fastcache.clru_cache(
     maxsize=16384,
-)(jinja2.utils.urlize)
+)(jinja2.utils.urlize))
