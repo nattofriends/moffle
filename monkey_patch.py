@@ -7,6 +7,16 @@ import werkzeug.urls
 from werkzeug._compat import text_type, to_native
 from werkzeug.urls import _always_safe
 
+from jinja2.utils import (
+    _digits,
+    _letters,
+    _punctuation_re,
+    _simple_email_re,
+    _word_split_re,
+    escape,
+    text_type,
+)
+
 import util
 
 def _get_stringy_set(seq, charset, errors):
@@ -78,6 +88,65 @@ def _url_quote(string, charset='utf-8', errors='strict', safe='/:', unsafe=''):
     return to_native(bytes(rv))
 
 
+@util.delay_template_filter('cached_urlize')
+def urlize(text, trim_url_limit=None, nofollow=False):
+    """Converts any URLs in text into clickable links. Works on http://,
+    https:// and www. links. Links can have trailing punctuation (periods,
+    commas, close-parens) and leading punctuation (opening parens) and
+    it'll still do the right thing.
+
+    If trim_url_limit is not None, the URLs in link text will be limited
+    to trim_url_limit characters.
+
+    If nofollow is True, the URLs in link text will get a rel="nofollow"
+    attribute.
+    """
+
+    words = _word_split_re.split(text_type(escape(text)))
+    nofollow_attr = nofollow and ' rel="nofollow"' or ''
+
+    for i, word in enumerate(words):
+        replace = _urlize_parse(word, nofollow_attr, trim_url_limit)
+        if replace:
+            words[i] = replace
+    return u''.join(words)
+
+def trim_url(x, limit):
+    return limit is not None \
+        and (x[:limit] + (len(x) >= limit and '...' or '')) or x
+
+
+_ligits = _letters + _digits
+_domains = ('.com', '.net', '.org', '.jp',)
+
+@fastcache.clru_cache(maxsize=16384)
+def _urlize_parse(word, nofollow_attr, trim_url_limit):
+    match = _punctuation_re.match(word)
+    if match:
+        changed = False
+        lead, middle, trail = match.groups()
+        if middle.startswith('www.') or (
+            '@' not in middle and
+            not middle.startswith(('http://', 'https://')) and
+            len(middle) > 0 and
+            middle[0] in _ligits and
+            middle.endswith(_domains)
+            ):
+            middle = '<a href="http://%s"%s>%s</a>' % (middle,
+                nofollow_attr, trim_url(middle, trim_url_limit))
+            changed = True
+        elif middle.startswith(('http://', 'https://')):
+            middle = '<a href="%s"%s>%s</a>' % (middle,
+                nofollow_attr, trim_url(middle, trim_url_limit))
+            changed = True
+        elif '@' in middle and not middle.startswith('www.') and \
+            not ':' in middle and _simple_email_re.match(middle):
+            middle = '<a href="mailto:%s">%s</a>' % (middle, middle)
+            changed = True
+
+        if changed:
+            return lead + middle + trail
+
 # Don't look, kids.
 werkzeug.urls.url_quote = fastcache.clru_cache(
     maxsize=16384,
@@ -86,9 +155,3 @@ werkzeug.urls.url_quote = fastcache.clru_cache(
 werkzeug.urls.url_join = fastcache.clru_cache(
     maxsize=16384,
 )(werkzeug.urls.url_join)
-
-jinja2.utils.urlize = util.delay_template_filter(
-    'cached_urlize'
-)(fastcache.clru_cache(
-    maxsize=16384,
-)(jinja2.utils.urlize))

@@ -24,11 +24,10 @@ CTRL_REGEX = re.compile(r'(?:[%s%s%s])|(%s(?:\d{1,2})?,?(?:\d{1,2})?)' % (
 # Support urlization of urls with control codes immediately preceding and following
 jinja2.utils._punctuation_re = re.compile(
     '^(?P<lead>(?:%s)*)(?P<middle>.*?)(?P<trail>(?:%s)*)$' % (
-        '|'.join(map(re.escape, ('(', '<', '&lt;', CTRL_COLOR, CTRL_RESET, CTRL_UNDERLINE, CTRL_BOLD))),
-        '|'.join(map(re.escape, ('.', ',', ')', '>', '\n', '&gt;', '&#39;', '&#34;', CTRL_COLOR, CTRL_RESET, CTRL_UNDERLINE, CTRL_BOLD)))
+        '|'.join(['[\(<\x03\x0F\x1F\x02]'] + [re.escape(string) for string in ('&lt;',)]),
+        '|'.join(['[\.,\)>\n\x03\x0F\x1F\x02]'] + [re.escape(string) for string in ('&gt;', '&#39;', '&#34;')])
     )
 )
-
 
 def ctrl_to_colors(text):
     def try_color(char):
