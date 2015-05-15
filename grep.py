@@ -36,7 +36,7 @@ LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>\d{8})\.log(?P<line_mar
 OUTPUT_PROCESS_CHUNK_SIZE = 32
 
 class GrepBuilder:
-    template = """LC_ALL=C xargs -0 grep -in -C {context} {search}"""
+    template = """LC_ALL=C xargs -0 grep -Pin -C {context} {search}"""
     regex = "'<{author}> .*'{query}'.*'"
 
     author_default = '[^>]*'
