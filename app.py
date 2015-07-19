@@ -29,6 +29,9 @@ from forms import AjaxSearchForm
 from forms import SearchForm
 from grep import GrepBuilder
 
+if config.DEBUG_PYINSTRUMENT:
+    from pyinstrument import Profiler
+
 app = Flask(__name__)
 babel = Babel(app)
 
@@ -163,6 +166,16 @@ def get_locale():
         preferred = [x.replace('-', '_') for x in request.accept_languages.values()]
         return negotiate_locale(preferred, config.LOCALE_PREFER)
 
+
+def inject_profiler():
+    request.profiler = Profiler(use_signal=False)
+    request.profiler.start()
+
+def output_profiler(response):
+    request.profiler.stop()
+    print(request.profiler.output_text(unicode=True, color=True))
+    return response
+
 def create():
     global paths, grep
 
@@ -188,6 +201,10 @@ def create():
     if config.DEBUG_PROFILER:
         app.config['PROFILE'] = True
         app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
+
+    if config.DEBUG_PYINSTRUMENT:
+        app.before_request(inject_profiler)
+        app.after_request(output_profiler)
 
     return app
 
