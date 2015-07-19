@@ -31,7 +31,9 @@ Replacement = namedtuple('Replacement', ['name', 'required', 'regex'])
 Hit = namedtuple('Hit', ['channel', 'date', 'begin', 'lines'])
 Line = namedtuple('Line', ['channel', 'date', 'line_marker', 'line_no', 'line'])
 
-LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>\d{8})\.log(?P<line_marker>-|:)(?P<line_no>\d+)(?P=line_marker)(?P<line>.*)", re.M)
+# TODO: Having to parse the filenames again should be part of log_path's
+# responsibility
+LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>[\d-]{8,10})\.log(?P<line_marker>-|:)(?P<line_no>\d+)(?P=line_marker)(?P<line>.*)", re.M)
 
 OUTPUT_PROCESS_CHUNK_SIZE = 32
 

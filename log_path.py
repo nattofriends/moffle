@@ -2,7 +2,6 @@
 from collections import defaultdict
 from collections import namedtuple
 from datetime import date
-from datetime import datetime
 from operator import itemgetter
 from itertools import chain
 import os
@@ -28,7 +27,11 @@ ldp = looseboy.LooseDateParser()
 
 @fastcache.clru_cache(maxsize=1024)
 def parse_date(date_string):
-    components = date_string[0:4], date_string[4:6], date_string[6:8]
+    if len(date_string) == 8:
+        components = date_string[0:4], date_string[4:6], date_string[6:8]
+    elif len(date_string) == 10:
+        components = date_string[0:4], date_string[5:7], date_string[8:10]
+
     components = map(int, components)
     return date(*components)
 
@@ -303,15 +306,8 @@ class DirectoryDelimitedLogPath(LogPath):
         if not os.path.exists(network_base):
             return None
 
-        if network in self._channel_list_cache:
-            if date.today() == self._channel_list_stamp[network]:
-                return self._channel_list_cache[network]
-
         files = os.listdir(network_base)
         files = [{'channel': channel} for channel in files]
-
-        self._channel_list_stamp[network] = date.today()
-        self._channel_list_cache[network] = files
 
         return files
 
@@ -329,6 +325,86 @@ class DirectoryDelimitedLogPath(LogPath):
         } for filename in files if filename.endswith(DirectoryDelimitedLogPath.LOG_SUFFIX)]
 
         for f in files:
-            f['date_obj'] = datetime.strptime(f['date'], '%Y%m%d').date()
+            f['date_obj'] = parse_date(f['date'])
 
         return files
+
+class ZNC16DirectoryDelimitedLogPath(DirectoryDelimitedLogPath):
+    # Assume people are creating user-per-network. If they aren't they can subclass
+    # something themselves. This assumption is embedded into LOG_FILENAME_REGEX
+    # anyway.
+    NETWORK_DEFAULT_USER = "default"
+
+    @fastcache.clru_cache(maxsize=128)
+    def network_to_path(self, network):
+        return os.path.join(config.LOG_BASE, network, LOG_INTERMEDIATE_BASE, ZNC16DirectoryDelimitedLogPath.NETWORK_DEFAULT_USER)
+
+    def _dates_list(self, network, channel):
+        """ZNC 1.6 default stores files with a %Y-%m-%d format. Preserve the %Y%m%d format in display
+        by coercing it back and forth every single time. Performance impact: yet to determined
+        """
+
+        files = super(ZNC16DirectoryDelimitedLogPath, self)._dates_list(network, channel)
+
+        if not files:
+            return files
+
+        for f in files:
+            f['date'] = f['date_obj'].strftime("%Y%m%d")
+
+        return files
+
+    def log(self, network, channel, date):
+        channels = self._channels_list(network)
+        dates = self._dates_list(network, channel)
+
+        if channels is None or dates is None:
+            raise exceptions.NoResultsException()
+
+        if not self.ac.evaluate(network, channel):
+            raise exceptions.NoResultsException()
+
+        try:
+            self._maybe_channel(network, channel, channels)
+        except (
+            exceptions.NoResultsException,
+            exceptions.MultipleResultsException,
+            exceptions.CanonicalNameException,
+        ):
+            raise
+
+        latest = max(dates, key=itemgetter('date'))['date']
+
+        parsed_date = ldp.parse(date, latest)
+        if not parsed_date:
+            raise exceptions.NoResultsException()
+        elif parsed_date != date:
+            raise exceptions.CanonicalNameException(util.Scope.DATE, parsed_date)
+
+
+
+        # Reverse the human-friendly ordering here.
+        channel_dates = self.channel_dates(network, channel)[::-1]
+        log = [log_date for log_date in channel_dates if log_date == date]
+
+        if len(log) == 0:
+            raise exceptions.NoResultsException()
+
+        log = log[0]
+        log_idx = channel_dates.index(log)
+
+        # Convert the no-dash presentation date...
+        log = log[0:4] + '-' + log[4:6] + '-' + log[6:8]
+
+        before, after = None, None
+        if log_idx > 0:
+            before = channel_dates[log_idx - 1]
+        if log_idx < len(channel_dates) - 1:
+            after = channel_dates[log_idx + 1]
+
+        log_path = os.path.join(self.channel_to_path(network, channel),
+                                log + DirectoryDelimitedLogPath.LOG_SUFFIX)
+
+        log_file = enumerate(open(log_path, errors='ignore').readlines(), start=1)
+
+        return LogResult(log_file, before, after)
