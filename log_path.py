@@ -39,8 +39,6 @@ class LogPath:
 
     def __init__(self):
         self.ac = AccessControl(config.ACL)
-        self._channel_list_cache = cachetools.LRUCache(maxsize=128)
-        self._channel_list_stamp = defaultdict(lambda: date.fromtimestamp(0))
 
     def networks(self):
         base_contents = os.listdir(config.LOG_BASE)
@@ -172,7 +170,7 @@ class LogPath:
         # Accomodate partial matches to see if containing-match only matches
         # one channel. If it does, we can 302 to the real URL, but otherwise
         # we should 404.
-        maybe_channels = {filename['channel'] for filename in matches if channel in filename['channel']}
+        maybe_channels = {filename['channel'] for filename in matches if channel.lower() in filename['channel'].lower()}
 
         # Bail if it's ambiguous...
         if len(maybe_channels) > 1:
