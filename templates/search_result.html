@@ -15,7 +15,7 @@
         <pre class="search-result-text log-entry">
             {% for result in result_group %}
                 {% for line in result.lines %}
-                    {{ line.line | hostmask_tooltip | urlize(nofollow=True) | control_codes | line_style(line.line_no, is_search=True, network=network, ctx=line) | safe }}<br>
+                    {{ line.line | urlize(nofollow=True) | control_codes | line_style(line.line_no, is_search=True, network=network, ctx=line) | safe }}<br>
                 {% endfor %}
                 <span class="ellipsis">[...]</span><br>
             {% endfor %}
