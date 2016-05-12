@@ -1,5 +1,6 @@
-/* Feels bad etc. */
-$icon-font-path: "/static/vendor/bootstrap-sass-official/assets/fonts/bootstrap/";
+@import 'static/bootstrap_version';
+
+$icon-font-path: "//maxcdn.bootstrapcdn.com/bootstrap/#{$bower-bootstrap-version}/fonts/";
 
 @import 'static/vendor/bootstrap-sass-official/assets/stylesheets/bootstrap';
 

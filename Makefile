@@ -51,6 +51,7 @@ restart: stop start
 
 clean:
 	$(RM) static/style.css
+	$(RM) static/_bootstrap_version.scss
 	$(RM) messages.pot
 	$(RM) *.stamp
 
@@ -59,8 +60,11 @@ last-exception:
 
 css: static/style.css
 
-static/style.css: static/style.scss static/vendor/bootstrap-sass-official/assets/stylesheets/_bootstrap.scss
-	$(VENV3)/bin/sassc -t compressed static/style.scss > static/style.css
+static/_bootstrap_version.scss: static/vendor/bootstrap-sass-official/bower.json
+	echo "\$$bower-bootstrap-version:" \"$(shell cat static/vendor/bootstrap-sass-official/bower.json | jq -r .version)\" > static/_bootstrap_version.scss
+
+static/style.css: static/style.scss static/_bootstrap_version.scss static/vendor/bootstrap-sass-official/assets/stylesheets/_bootstrap.scss
+	$(VENV3)/bin/sassc -t compressed static/style.scss static/style.css
 
 init-env:
 	ln -s ../bower_components static/vendor
