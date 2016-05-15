@@ -246,7 +246,7 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
 
 @util.delay_template_filter('clinkify')
 def clinkify(s):
-    splitted = escape(s).split()
+    splitted = s.split()
     for i, fragment in enumerate(splitted):
         # Remove beginning punctuation
         begin = re.match(r'^[\(<\x03\x0f\x1f\x02]+', fragment)
@@ -277,6 +277,8 @@ def clinkify(s):
                 middle += end[:unclosed_parens]
                 end = end[unclosed_parens:]
 
-            splitted[i] = "{0}<a href=\'{1}\'>{1}</a>{2}".format(begin, middle, end)
+            splitted[i] = "{0}<a href=\'{1}\'>{1}</a>{2}".format(escape(begin), escape(middle), escape(end))
+        else:
+            splitted[i] = escape(fragment)
 
     return ' '.join(splitted)
