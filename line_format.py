@@ -258,7 +258,7 @@ def clinkify(s):
             middle_start = 0
             begin = ''
 
-		# Remove end punctuation.
+        # Remove end punctuation.
         end = re.search(r'[\.,\)>\n\x04\x0F\x1F\x02]+$', fragment[middle_start:])
 
         if end:
