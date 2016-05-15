@@ -243,3 +243,40 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
         rest=rest,
     )
 
+
+@util.delay_template_filter('clinkify')
+def clinkify(s):
+    splitted = escape(s).split()
+    for i, fragment in enumerate(splitted):
+        # Remove beginning punctuation
+        begin = re.match(r'^[\(<\x03\x0f\x1f\x02]+', fragment)
+
+        if begin:
+            middle_start = begin.end()
+            begin = begin.group()
+        else:
+            middle_start = 0
+            begin = ''
+
+		# Remove end punctuation.
+        end = re.search(r'[\.,\)>\n\x04\x0F\x1F\x02]+$', fragment[middle_start:])
+
+        if end:
+            middle_end = middle_start + end.start()
+            end = end.group()
+        else:
+            middle_end = len(fragment)
+            end = ''
+
+        # Has protocol?
+        middle = fragment[middle_start:middle_end]
+        if middle.startswith(('http://', 'https://', 'www.')):
+            unclosed_parens = middle.count('(') - middle.count(')')
+            # Special case for parentheses (Wikipedia), but not brackets (Slack bridge)
+            if end and len(end) >= unclosed_parens > 0 and end[:unclosed_parens] == ')' * unclosed_parens:
+                middle += end[:unclosed_parens]
+                end = end[unclosed_parens:]
+
+            splitted[i] = "{0}<a href=\'{1}\'>{1}</a>{2}".format(begin, middle, end)
+
+    return ' '.join(splitted)

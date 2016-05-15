@@ -4,6 +4,7 @@ python2/
 python3/
 
 messages.pot
+static/_bootstrap_version.scss
 static/style.css
 
 *.pyc
