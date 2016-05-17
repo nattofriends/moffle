@@ -186,7 +186,13 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
     """
 
     # At some point this should become yet another regex.
-    timestamp, maybe_user, rest = s.split(' ', 2)
+    timestamp, rest = s.split(' ', 1)
+    rest_split = rest.split(' ', 1)
+    if len(rest_split) == 1:
+        user, = rest_split
+        msg = ''
+    else:
+        user, msg = rest_split
 
     classes = []
     msg_user_classes = []
@@ -195,15 +201,15 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
     if ctx and ctx.line_marker == ':':
         classes.append("irc-highlight")
 
-    if rest.startswith("Quits"):
+    if msg.startswith("Quits"):
         msg_user_classes.append("irc-part")
-    elif rest.startswith("Parts"):
+    elif msg.startswith("Parts"):
         msg_user_classes.append("irc-part")
-    elif rest.startswith("Joins"):
+    elif msg.startswith("Joins"):
         msg_user_classes.append("irc-join")
 
     #  escaping is done before this.
-    if rest.startswith("&gt;"):
+    if msg.startswith("&gt;"):
         msg_classes.append("irc-greentext")
 
     # Make links back to actual line if we're in search.
@@ -227,8 +233,8 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
 
     return '<span class="{line_class}">' \
         '<a href="{href}" id="{id_}" class="js-line-no-highlight">{timestamp}</a> ' \
-        '<span class="{msg_user_class}">{maybe_user} ' \
-        '<span class="{msg_class}">{rest}' \
+        '<span class="{msg_user_class}">{user} ' \
+        '<span class="{msg_class}">{msg}' \
         '</span>' \
         '</span>' \
         '</span>' \
@@ -238,9 +244,9 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
         href=href,
         msg_user_class=' '.join(msg_user_classes),
         msg_class=' '.join(msg_classes),
-        maybe_user=maybe_user,
+        user=user,
         id_=id_,
-        rest=rest,
+        msg=msg,
     )
 
 
