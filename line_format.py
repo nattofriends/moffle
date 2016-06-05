@@ -1,11 +1,9 @@
-import itertools
 import re
 
 import fastcache
 import jinja2.utils
 from flask import url_for
 from jinja2 import escape
-from jinja2 import Markup
 
 import util
 
@@ -54,7 +52,7 @@ def ctrl_to_colors(text):
     return (fg_color_id, bg_color_id)
 
 
-class LineState:
+class LineState(object):
     def __init__(self):
         self.reset()
 
@@ -89,37 +87,6 @@ def generate_span(state):
     if state.bg_color is not None and state.fg_color < 16:
         classes.append("irc-bg-%s" % state.bg_color)
     return "<span class=\"%s\">" % ' '.join(classes)
-
-
-@util.delay_template_filter('hostmask_tooltip')
-@fastcache.clru_cache(maxsize=16384)
-def hostmask_tooltip(s):
-    """Remove join/part tooltips before urlize can get to them.
-    """
-    timestamp, maybe_user, rest = s.split(' ', 2)
-    rest = escape(rest)
-
-    # I am a bad person.
-    def replace_interleave(m):
-        spaces = itertools.repeat('&#8203;')
-        user, email = m.groups()
-        return '<span class="movement-tooltip" data-toggle="tooltip" data-placement="top" title="{email}">{user}</span>'.format(
-            user=user,
-            email=''.join(itertools.chain.from_iterable(zip(
-                CTRL_REGEX.sub('', email),
-                spaces,
-            ))),
-        )
-
-    if any(rest.startswith(prefix) for prefix in ('Quits', 'Parts', 'Joins')):
-        rest = re.sub(
-            r'([^ ]+) \(([^)]+?)\)',
-            replace_interleave,
-            rest,
-            count=1,
-        )
-
-    return Markup(' ').join((timestamp, maybe_user, Markup(rest)))
 
 
 # Don't ask me why the filter name is different from the function name.
@@ -252,7 +219,7 @@ def line_style(s, line_no, is_search, network=None, ctx=None):
 
 @util.delay_template_filter('clinkify')
 def clinkify(s):
-    splitted = s.split()
+    splitted = s.split(' ')
     for i, fragment in enumerate(splitted):
         # Remove beginning punctuation
         begin = re.match(r'^[\(<\x03\x0f\x1f\x02]+', fragment)
@@ -283,7 +250,12 @@ def clinkify(s):
                 middle += end[:unclosed_parens]
                 end = end[unclosed_parens:]
 
-            splitted[i] = "{0}<a href=\'{1}\'>{1}</a>{2}".format(escape(begin), escape(middle), escape(end))
+            if middle.startswith('www.'):
+                href = "http://" + middle
+            else:
+                href = middle
+
+            splitted[i] = "{0}<a href=\'{1}\'>{2}</a>{3}".format(escape(begin), href, escape(middle), escape(end))
         else:
             splitted[i] = escape(fragment)
 
