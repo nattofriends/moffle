@@ -116,7 +116,7 @@ class GrepBuilder:
             else:
                 chunk_size = floor(target_chunk_size)
 
-            return chunk_size
+            return max(1, chunk_size)
 
         def fold_chunks(chunks):
             """Even after fair chunking, if there are too many workers and not enough
@@ -162,7 +162,7 @@ class GrepBuilder:
             chunk_size = next_chunk_size(chunk_sizes, target_chunk_size)
 
             chunk = list(islice(paths_it, chunk_size))
-            if not chunk:
+            if not chunk:  # Nothing left to iterate
                 break
 
             chunk_sizes.append(chunk_size)
