@@ -10,6 +10,7 @@ from flask import g
 from flask import redirect
 from flask import request
 from flask import render_template
+from flask import Response
 from flask import url_for
 from flask.ext.babel import Babel
 from jinja2 import FileSystemBytecodeCache
@@ -89,6 +90,30 @@ def log(network, channel, date):
 
         g.canonical_url = url_for('log', network=network, channel=channel, date=date)
         return log_(network, channel, date)
+
+@app.route('/<network>/<channel>/<date>/raw')
+def log_raw(network, channel, date):
+    try:
+        log = paths.log(network, channel, date)
+        # Don't look, kids!
+        _, (log_lines_only, _) = log.log.__reduce__()
+        log_text = ''.join(list(log_lines_only))
+        return Response(log_text, mimetype='text/plain')
+
+    except exceptions.NoResultsException as ex:
+        abort(404)
+    except exceptions.MultipleResultsException as ex:
+        return render_template('error/multiple_results.html', network=network, channel=channel)
+    except exceptions.CanonicalNameException as ex:
+        info_type, canonical_data = ex.args
+
+        if info_type == util.Scope.CHANNEL:
+            channel = canonical_data
+        elif info_type == util.Scope.DATE:
+            date = canonical_data
+
+        return redirect(url_for('log_raw', network=network, channel=channel, date=date))
+
 
 log_ = log
 
