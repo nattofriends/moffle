@@ -161,7 +161,41 @@ TEST_INTEGRATION_INPUTS = OrderedDict((
             True,
         ),
     ),
-
+    (
+        "deny non-channel prefix",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', 'test@example.com', ('network', 'net'), ('root', 'root')),
+                ('allow', 'test@example.com', ('channel', '*'), ('network', 'net')),
+            ),
+            'test@example.com', 'net', 'notachannel',
+            False,
+        ),
+    ),
+    (
+        "allow private message special token",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', 'test@example.com', ('network', 'net'), ('root', 'root')),
+                ('allow', 'test@example.com', ('channel', 'PRIVATE_MESSAGE'), ('network', 'net')),
+            ),
+            'test@example.com', 'net', 'notachannel',
+            True,
+        ),
+    ),
+    (
+        "allow private message on wildcard scope",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', 'test@example.com', ('*', 'PRIVATE_MESSAGE'), ('root', 'root')),
+            ),
+            'test@example.com', 'net', 'notachannel',
+            True,
+        ),
+    ),
 ))
 
 @pytest.mark.parametrize(

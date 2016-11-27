@@ -9,7 +9,9 @@ import config
 import util
 
 MAX_PARENT_REFERENCE_RESOLUTION_ROUNDS = 10
+CHANNEL_PREFIXES = '#&'
 ANY = '*'
+PRIVATE_MESSAGE = 'PRIVATE_MESSAGE'
 
 # not used
 Rule = namedtuple('Rule', ['verdict', 'user', 'target', 'parent'])
@@ -67,7 +69,10 @@ class Node:
             if self.scope in Node.TERMINAL_SCOPES:
                 # This will make more sense once we have date scopes... or
                 # something.
-                if self.scope == util.Scope.CHANNEL and self.value == channel:
+                if self.scope == util.Scope.CHANNEL and \
+                    (self.value == channel or \
+                     (self.value == PRIVATE_MESSAGE and channel[0] not in CHANNEL_PREFIXES)
+                    ):
                     return [self]
                 return []
             elif self.scope == util.Scope.NETWORK and self.value == network:
@@ -165,16 +170,20 @@ class AccessControl:
             if wildcard_node.user in (user, ANY):
                 if channel:
                     if wildcard_node.scope == util.Scope.NETWORK:
-                        # Granting network/anything shold have no effect on a
+                        # Granting network/anything should have no effect on a
                         # channel decision.
                         pass
                     elif wildcard_node.scope in (util.Scope.CHANNEL, ANY):
                         # Check that our own value is fine.
                         # Then check the parent (a network) to see if it passes
                         # muster.
+                        # Wildcard ALLOWs don't apply if the target is actually a private message.
                         if all([
                             (wildcard_node.parent_value in (network, ANY) or wildcard_node.parent_scope == util.Scope.ROOT),
-                            wildcard_node.value in (channel, ANY),
+                            any([
+                                (wildcard_node.value in (channel, ANY) and (channel[0] in CHANNEL_PREFIXES or wildcard_node.verdict == util.Verdict.DENY)),
+                                (wildcard_node.value == PRIVATE_MESSAGE and channel[0] not in CHANNEL_PREFIXES),
+                            ]),
                         ]):
                             if wildcard_node.scope == ANY:
                                 wildcard_node = copy(wildcard_node)
