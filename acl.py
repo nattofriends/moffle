@@ -16,6 +16,15 @@ PRIVATE_MESSAGE = 'PRIVATE_MESSAGE'
 # not used
 Rule = namedtuple('Rule', ['verdict', 'user', 'target', 'parent'])
 
+def is_value_rule_value(value, rule_value):
+    if rule_value == ANY:
+        return True
+    if isinstance(rule_value, str):
+        return value == rule_value
+    else:
+        return value in rule_value
+
+
 class Node:
     TERMINAL_SCOPES = (
         util.Scope.CHANNEL,
@@ -49,12 +58,11 @@ class Node:
         Return True if successfully parented anywhere, False otherwise.
         """
 
-        child_parent_scope = child.parent_scope
-        child_parent_value = child.parent_value
-
         if all([
-            child_parent_scope == self.scope,
-            child_parent_value == self.value,
+            child.parent_scope == self.scope,
+            # TODO: This will not work when the child has a value group
+            is_value_rule_value(child.parent_value, self.value),
+            # TODO: This will not work when the child has a value group
             self.user in (child.user, ANY),
         ]):
             self.children.append(child)
@@ -65,17 +73,17 @@ class Node:
             return any([node.add_child(child) for node in self.children])
 
     def find_rule(self, user, network, channel):
-        if self.user == ANY or self.user == user:
+        if is_value_rule_value(user, self.user):
             if self.scope in Node.TERMINAL_SCOPES:
                 # This will make more sense once we have date scopes... or
                 # something.
                 if self.scope == util.Scope.CHANNEL and \
-                    (self.value == channel or \
+                    (is_value_rule_value(channel, self.value) or \
                      (self.value == PRIVATE_MESSAGE and channel[0] not in CHANNEL_PREFIXES)
                     ):
                     return [self]
                 return []
-            elif self.scope == util.Scope.NETWORK and self.value == network:
+            elif self.scope == util.Scope.NETWORK and is_value_rule_value(network, self.value):
                 if channel:
                     return self._ask_children(user, network, channel)
                 else:
@@ -167,7 +175,7 @@ class AccessControl:
         # whether to evaluate it or not; we currently don't
         # have any scopes that can attach to arbitrary other scopes.
         for wildcard_node in self.wildcard_nodes:
-            if wildcard_node.user in (user, ANY):
+            if is_value_rule_value(user, wildcard_node.user):
                 if channel:
                     if wildcard_node.scope == util.Scope.NETWORK:
                         # Granting network/anything should have no effect on a

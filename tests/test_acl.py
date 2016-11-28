@@ -196,6 +196,42 @@ TEST_INTEGRATION_INPUTS = OrderedDict((
             True,
         ),
     ),
+    (
+        "allow acl groups",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', '*', ('network', 'net'), ('root', 'root')),
+                ('allow', ['test@example.com', 'test2@example.com'], ('channel', '#channel'), ('network', 'net')),
+            ),
+            'test@example.com', 'net', '#channel',
+            True,
+        ),
+    ),
+    (
+        "allow channel groups",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', '*', ('network', 'net'), ('root', 'root')),
+                ('allow', 'test@example.com', ('channel', ['#channel', '#channel2']), ('network', 'net')),
+            ),
+            'test@example.com', 'net', '#channel2',
+            True,
+        ),
+    ),
+    (
+        "allow network groups",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', '*', ('network', ['net', 'net2']), ('root', 'root')),
+                ('allow', 'test@example.com', ('channel', '#channel'), ('network', 'net')),
+            ),
+            'test@example.com', 'net2', '#channel',
+            True,
+        ),
+    ),
 ))
 
 @pytest.mark.parametrize(
