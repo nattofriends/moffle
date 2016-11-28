@@ -124,7 +124,7 @@ TEST_INTEGRATION_INPUTS = OrderedDict((
                 ('allow', '*', ('network', '*'), ('root', 'root')),
             ),
             'test@example.com', 'net', None,
-        False,
+            False,
         ),
     ),
     (
@@ -227,6 +227,19 @@ TEST_INTEGRATION_INPUTS = OrderedDict((
                 ('deny', '*', ('*', '*'), ('root', 'root')),
                 ('allow', '*', ('network', ['net', 'net2']), ('root', 'root')),
                 ('allow', 'test@example.com', ('channel', '#channel'), ('network', 'net')),
+            ),
+            'test@example.com', 'net2', '#channel',
+            True,
+        ),
+    ),
+    (
+        "allow parent and child value groups",
+        (
+            (
+                ('deny', '*', ('*', '*'), ('root', 'root')),
+                ('allow', '*', ('network', ['net', 'net2']), ('root', 'root')),
+                ('allow', '*', ('network', 'net3'), ('root', 'root')),
+                ('allow', 'test@example.com', ('channel', '#channel'), ('network', ['net2', 'net3'])),
             ),
             'test@example.com', 'net2', '#channel',
             True,

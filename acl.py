@@ -19,10 +19,13 @@ Rule = namedtuple('Rule', ['verdict', 'user', 'target', 'parent'])
 def is_value_rule_value(value, rule_value):
     if rule_value == ANY:
         return True
-    if isinstance(rule_value, str):
-        return value == rule_value
-    else:
-        return value in rule_value
+    return value in value_multi(rule_value)
+
+
+def value_multi(value):
+    if isinstance(value, str):
+        return [value]
+    return value
 
 
 class Node:
@@ -60,13 +63,17 @@ class Node:
 
         if all([
             child.parent_scope == self.scope,
-            # TODO: This will not work when the child has a value group
-            is_value_rule_value(child.parent_value, self.value),
-            # TODO: This will not work when the child has a value group
-            self.user in (child.user, ANY),
+
+            # At least one of the own values is a child's parent value
+            # Don't check for ANY here - that is covered by AccessControl and ANY parents aren't allowed anyway
+            bool(set(value_multi(child.parent_value)) & set(value_multi(self.value))),
+
+            # At least one of the users is covered by this rule
+            bool(set(value_multi(child.user)) & set(value_multi(self.user))) or self.user == ANY,
         ]):
-            self.children.append(child)
-            child.parent = self
+            node_child = copy(child)
+            node_child.parent = self
+            self.children.append(node_child)
             return True
 
         else:
@@ -187,9 +194,9 @@ class AccessControl:
                         # muster.
                         # Wildcard ALLOWs don't apply if the target is actually a private message.
                         if all([
-                            (wildcard_node.parent_value in (network, ANY) or wildcard_node.parent_scope == util.Scope.ROOT),
+                            (is_value_rule_value(network, wildcard_node.parent_value) or wildcard_node.parent_scope == util.Scope.ROOT),
                             any([
-                                (wildcard_node.value in (channel, ANY) and (channel[0] in CHANNEL_PREFIXES or wildcard_node.verdict == util.Verdict.DENY)),
+                                (is_value_rule_value(channel, wildcard_node.value) and (channel[0] in CHANNEL_PREFIXES or wildcard_node.verdict == util.Verdict.DENY)),
                                 (wildcard_node.value == PRIVATE_MESSAGE and channel[0] not in CHANNEL_PREFIXES),
                             ]),
                         ]):
@@ -197,18 +204,12 @@ class AccessControl:
                                 wildcard_node = copy(wildcard_node)
                                 wildcard_node.scope = util.Scope.CHANNEL
                             applicable.append(wildcard_node)
-                else:  # No channel, we are being asked to make a decision on a network
-                    if wildcard_node.scope == util.Scope.CHANNEL:
-                        # We aren't performing scope expansion, so granting
-                        # anything on a channel doesn't grant it on its parent
-                        # network (which might be interesting behavior).
-                        pass
-                    elif wildcard_node.scope in (util.Scope.NETWORK, ANY):
-                        # Check that the value is right.
-                        if wildcard_node.value in (network, ANY):
-                            node_copy = copy(wildcard_node)
-                            node_copy.scope = util.Scope.NETWORK
-                            applicable.append(node_copy)
+                elif wildcard_node.scope in (util.Scope.NETWORK, ANY):
+                    # If this is about a network only, channel scoped rules do nothing
+                    if is_value_rule_value(network, wildcard_node.value):
+                        node_copy = copy(wildcard_node)
+                        node_copy.scope = util.Scope.NETWORK
+                        applicable.append(node_copy)
 
         # Prefer closest scope, matching user over wildcard
         applicable = sorted(
@@ -225,13 +226,3 @@ class AccessControl:
 
         rule = applicable[0]
         return rule.verdict == util.Verdict.ALLOW
-
-if __name__ == "__main__":
-    ac = AccessControl(config.ACL)
-
-    print(ac._evaluate('chinesedewey@gmail.com', 'yelp', None))
-    assert False
-    print(ac._evaluate('', 'fbi-network', None))
-
-    print(ac._evaluate('', 'rizon', '#CAA'))
-    print(ac._evaluate('', 'channel', '#CAA-staff'))
