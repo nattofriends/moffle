@@ -1,4 +1,4 @@
-cachetools
+cachetools<2
 fastcache
 Flask
 Flask-Babel
@@ -8,4 +8,4 @@ libsass
 mock
 natsort
 pytest
-uWSGI
+git+https://github.com/unbit/uwsgi@2b3fb7373cb88e1af1c6190172f30f70bf3b100c#egg=uWSGI
