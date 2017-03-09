@@ -1,9 +1,11 @@
+dist: trusty
 language: python
 python:
+    - "3.6"
+    - "3.5"
     - "3.4"
-    - "3.3"
-install: 
-    - pip install -r requirements-3.txt
+install:
+    - pip install -r requirements.txt
     - cp Makefile.appconfig.example Makefile.appconfig
     - cp config.py.example config.py
 script:
