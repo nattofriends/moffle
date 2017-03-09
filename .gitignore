@@ -1,7 +1,6 @@
 bower_components/
 static/vendor
-python2/
-python3/
+runtime/
 
 messages.pot
 static/_bootstrap_version.scss
