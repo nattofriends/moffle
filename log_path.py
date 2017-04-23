@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from collections import defaultdict
 from collections import namedtuple
 from datetime import date
 from operator import itemgetter
@@ -24,6 +23,7 @@ LOG_FILENAME_REGEX = re.compile("(?P<filename>(?P<network>(default|znc)+)_(?P<ch
 LogResult = namedtuple('LogResult', ['log', 'before', 'after'])
 
 ldp = looseboy.LooseDateParser()
+
 
 @fastcache.clru_cache(maxsize=1024)
 def parse_date(date_string):
@@ -203,11 +203,9 @@ class LogPath:
 
         return file_matches
 
+
 class DirectoryDelimitedLogPath(LogPath):
     LOG_SUFFIX = '.log'
-
-    def __init__(self):
-        super(DirectoryDelimitedLogPath, self).__init__()
 
     def channel_dates(self, network, channel):
         dates = self._dates_list(network, channel)
@@ -317,8 +315,8 @@ class DirectoryDelimitedLogPath(LogPath):
 
         files = os.listdir(channel_base)
         files = [{
-            'channel' : channel,
-            'date': filename[:-1*len(DirectoryDelimitedLogPath.LOG_SUFFIX)],
+            'channel': channel,
+            'date': filename[:-1 * len(DirectoryDelimitedLogPath.LOG_SUFFIX)],
             'filename': os.path.join(channel_base, filename)
         } for filename in files if filename.endswith(DirectoryDelimitedLogPath.LOG_SUFFIX)]
 
@@ -326,6 +324,7 @@ class DirectoryDelimitedLogPath(LogPath):
             f['date_obj'] = parse_date(f['date'])
 
         return files
+
 
 class ZNC16DirectoryDelimitedLogPath(DirectoryDelimitedLogPath):
     # Assume people are creating user-per-network. If they aren't they can subclass
@@ -378,8 +377,6 @@ class ZNC16DirectoryDelimitedLogPath(DirectoryDelimitedLogPath):
             raise exceptions.NoResultsException()
         elif parsed_date != date:
             raise exceptions.CanonicalNameException(util.Scope.DATE, parsed_date)
-
-
 
         # Reverse the human-friendly ordering here.
         channel_dates = self.channel_dates(network, channel)[::-1]

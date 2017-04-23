@@ -193,12 +193,14 @@ class GrepBuilder:
 def init_worker():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
+
 def run_worker(cmd, paths):
     proc = Popen(cmd, shell=True, stdout=PIPE, stdin=PIPE)
     output, _ = proc.communicate(paths)
     output = output.decode('utf-8', errors='ignore').strip()
 
     return output
+
 
 def _process_hit(split):
     lines = split.strip().split('\n')

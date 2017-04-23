@@ -1,7 +1,4 @@
-from datetime import date, datetime, timedelta
-from math import floor
-
-import monkey_patch
+import monkey_patch  # noqa
 
 from babel import negotiate_locale
 from flask import Flask
@@ -12,8 +9,7 @@ from flask import request
 from flask import render_template
 from flask import Response
 from flask import url_for
-from flask.ext.babel import Babel
-from jinja2 import FileSystemBytecodeCache
+from flask_babel import Babel
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.contrib.profiler import ProfilerMiddleware
 
@@ -22,9 +18,8 @@ import exceptions
 import util
 
 # Must import to run decorator
-import template_context
-import line_format
-import log_path
+import template_context  # noqa
+import line_format  # noqa
 
 from forms import AjaxSearchForm
 from forms import SearchForm
@@ -33,8 +28,10 @@ from grep import GrepBuilder
 if config.DEBUG_PYINSTRUMENT:
     from pyinstrument import Profiler
 
+
 app = Flask(__name__)
 babel = Babel(app)
+
 
 @app.route('/')
 def index():
@@ -42,14 +39,16 @@ def index():
 
     return render_template('index.html', networks=networks)
 
+
 @app.route('/<network>/')
 def network(network):
     try:
         channels = paths.channels(network)
-    except exceptions.NoResultsException as ex:
+    except exceptions.NoResultsException:
         abort(404)
 
     return render_template('network.html', network=network, channels=channels)
+
 
 @app.route('/<network>/<channel>/')
 def channel(network, channel):
@@ -66,7 +65,9 @@ def channel(network, channel):
         g.canonical_url = url_for('channel', network=network, channel_=canonical_channel)
         return channel_(network, canonical_channel)
 
+
 channel_ = channel
+
 
 @app.route('/<network>/<channel>/<date>')
 def log(network, channel, date):
@@ -90,6 +91,7 @@ def log(network, channel, date):
 
         g.canonical_url = url_for('log', network=network, channel=channel, date=date)
         return log_(network, channel, date)
+
 
 @app.route('/<network>/<channel>/<date>/raw')
 def log_raw(network, channel, date):
@@ -117,6 +119,7 @@ def log_raw(network, channel, date):
 
 log_ = log
 
+
 @app.route('/search/')
 def search():
     # TODO: Expose multi-channel search
@@ -133,9 +136,9 @@ def search():
 
         try:
             dates = paths.channels_dates(network, [channel])
-        except exceptions.NoResultsException as ex:
+        except exceptions.NoResultsException:
             abort(404)
-        except exceptions.MultipleResultsException as ex:
+        except exceptions.MultipleResultsException:
             return render_template('error/multiple_results.html', network=network, channel=channel)
 
         max_segment = grep.max_segment(dates[-1]['date_obj'])
@@ -155,6 +158,7 @@ def search():
             )
 
         return render_template('search.html', valid=valid, form=form, network=network, channel=channel, results=results)
+
 
 @app.route('/search/chunk')
 def search_ajax_chunk():
@@ -177,9 +181,11 @@ def search_ajax_chunk():
 
     return render_template('search_result.html', network=form.network.data, channels=[form.channel.data], results=results)
 
+
 @app.errorhandler(404)
 def not_found(ex):
     return render_template('error/not_found.html'), 404
+
 
 @babel.localeselector
 def get_locale():
@@ -232,6 +238,7 @@ def create():
         app.after_request(output_profiler)
 
     return app
+
 
 if __name__ == '__main__':
     create()
