@@ -15,15 +15,19 @@ from werkzeug.contrib.profiler import ProfilerMiddleware
 
 import config
 import exceptions
+import grep
+import log_path
 import util
 
 # Must import to run decorator
 import template_context  # noqa
 import line_format  # noqa
 
+
+from acl import AccessControl
 from forms import AjaxSearchForm
 from forms import SearchForm
-from grep import GrepBuilder
+
 
 if config.DEBUG_PYINSTRUMENT:
     from pyinstrument import Profiler
@@ -202,16 +206,18 @@ def inject_profiler():
     request.profiler = Profiler(use_signal=False)
     request.profiler.start()
 
+
 def output_profiler(response):
     request.profiler.stop()
     print(request.profiler.output_text(unicode=True, color=True))
     return response
 
+
 def create():
     global paths, grep
 
-    paths = getattr(log_path, config.LOG_PATH_CLASS)()
-    grep = GrepBuilder(paths)
+    paths = getattr(log_path, config.LOG_PATH_CLASS)(AccessControl(config.ACL))
+    grep = getattr(grep, config.GREP_BUILDER_CLASS)(paths)
 
     util.register_context_processors(app)
     util.register_template_filters(app)

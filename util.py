@@ -1,6 +1,11 @@
+from time import asctime
+
 CONTEXT_PROCESSORS = []
 
 TEMPLATE_FILTERS = []
+
+def log(message):
+    print('{}  {}'.format(asctime(), message))
 
 def delay_context_processor(f):
     CONTEXT_PROCESSORS.append(f)

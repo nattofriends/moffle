@@ -21,6 +21,9 @@ import re
 import signal
 
 import fastcache
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import MultiSearch
+from elasticsearch_dsl import Search
 
 import config
 
@@ -37,8 +40,9 @@ LINE_REGEX = re.compile("(?P<channel>[#&].*)[_/](?P<date>[\d-]{8,10})\.log(?P<li
 
 OUTPUT_PROCESS_CHUNK_SIZE = 32
 
+
 class GrepBuilder:
-    template = """LC_ALL=C xargs -0 grep -Pina -C {context} {search}"""
+    template = """LC_ALL=C xargs -0 {grep} -C {context} {search}"""
     regex = "'<{author}> .*'{query}'.*'"
 
     author_default = '[^>]*'
@@ -62,7 +66,7 @@ class GrepBuilder:
         query = quote(unescape(query))
 
         regex = self.regex.format(author=author, query=query)
-        cmd = self.template.format(context=self.context, search=regex)
+        cmd = self.template.format(grep=config.GREP, context=self.context, search=regex)
 
         channel_dates = self.log_path.channels_dates(network, channels)
         channel_paths = self._process_channel_dates(channel_dates, network, date_begin, date_end)
@@ -142,7 +146,7 @@ class GrepBuilder:
             date = log['date_obj']
 
             if ((date_begin and date_begin < date) or (not date_begin)) and \
-                ((date_end and date_end >= date) or (not date_end)):
+                    ((date_end and date_end >= date) or (not date_end)):
                 filtered_channel_dates.append(log)
 
         channel_paths = [join(
@@ -230,3 +234,112 @@ def _process_hit(split):
         line_objs.append(line)
 
     return Hit(channel, date, begin, line_objs)
+
+
+class ESGrepBuilder:
+
+    def __init__(self, _):
+        self.es = Elasticsearch(['localhost'])
+
+    def _format_line(self, line, is_hit):
+        if line.line_type == 'normal':
+            text = '[{0.time}] <{0.author}> {0.text}'.format(line)
+        elif line.line_type == 'action':
+            text = '[{0.time}] * {0.author} {0.text}'.format(line)
+
+        # network??
+        return Line(
+            channel=line.channel,
+            date=line.date,
+            line_marker=':' if is_hit else '-',
+            line_no=line.line_no,
+            line=text,
+        )
+
+    def max_segment(self, oldest):
+        today = date.today()
+        total_interval = today - oldest
+        max_segment = floor(total_interval / timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS))
+
+        return max_segment
+
+    def segment_bounds(self, segment):
+        today = date.today()
+        chunk_size = timedelta(weeks=config.SEARCH_CHUNK_INTERVAL_WEEKS)
+        date_end = today - chunk_size * segment
+        date_start = date_end - chunk_size
+
+        return date_start, date_end
+
+    def run(self, network, channels, query, author=None, date_range=None):
+        # We don't support non-ajax, so will always have date range
+        assert date_range
+        date_begin, date_end = date_range
+
+        result = Search(
+            using=self.es, index='moffle',
+        ).query(
+            "match", text=query,
+        ).query(
+            "range", date={
+                'gt': date_begin.strftime('%Y%m%d'),
+                'lte': date_end.strftime('%Y%m%d'),
+            },
+        ).filter(
+            "terms", line_type=['normal', 'action'],
+        ).filter(
+            "term", network=network,
+        ).filter(
+            "terms", channel=channels,
+        ).sort(
+            "-date",
+        )[:10000].execute()
+
+        hits = []
+        # TODO: interval merging
+        ctx_search = MultiSearch(using=self.es, index='moffle')
+        for hit in result:
+            # Fetch context
+            ctx_search = ctx_search.add(Search(
+                using=self.es,
+                index='moffle',
+            ).query(
+                "range", line_no={
+                    "gte": hit.line_no - config.SEARCH_CONTEXT,
+                    "lte": hit.line_no + config.SEARCH_CONTEXT,
+                },
+            ).filter(
+                "term", network=hit.network,
+            ).filter(
+                "term", channel=hit.channel,
+            ).filter(
+                "term", date=hit.date,
+            ).sort(
+                "line_no",
+            ))
+
+        ctx_results = ctx_search.execute()
+        for hit, ctx_result in zip(result, ctx_results):
+            lines = []
+            for ctx_hit in ctx_result:
+                lines.append(self._format_line(
+                    ctx_hit,
+                    is_hit=(hit.line_no == ctx_hit.line_no),
+                ))
+            hit = Hit(
+                channel=hit.channel,
+                date=hit.date,
+                begin=lines[0].line_no,
+                lines=lines,
+            )
+            hits.append(hit)
+
+        hits = [list(group) for _, group in groupby(hits, key=lambda hit: hit.date)]
+        return hits
+
+
+if __name__ == "__main__":
+    e = ESGrepBuilder()
+    print(
+        e.run('bitlbee', '#fanime', 'fanime')
+    )

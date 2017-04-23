@@ -11,7 +11,6 @@ from natsort import ns
 import cachetools
 import fastcache
 
-from acl import AccessControl
 import config
 import exceptions
 import looseboy
@@ -35,10 +34,11 @@ def parse_date(date_string):
     components = map(int, components)
     return date(*components)
 
+
 class LogPath:
 
-    def __init__(self):
-        self.ac = AccessControl(config.ACL)
+    def __init__(self, ac):
+        self.ac = ac
 
     def networks(self):
         base_contents = os.listdir(config.LOG_BASE)
