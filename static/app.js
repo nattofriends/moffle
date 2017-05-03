@@ -36,6 +36,8 @@ function Autofilter() {
 
     this.bind.bind('input', $.proxy(this.bindChange, this));
     form.submit($.proxy(this.doNothing, this));
+
+    this.bind.focus();
 }
 
 Autofilter.prototype.doNothing = function(evt) {
